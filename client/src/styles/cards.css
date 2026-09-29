@@ -1,0 +1,247 @@
+/* ------------------------------------------------------------------ *
+ * Cartas
+ * ------------------------------------------------------------------ */
+
+.pcard {
+  --card-w: 78px;
+  --card-h: calc(var(--card-w) * 1.42);
+  width: var(--card-w);
+  height: var(--card-h);
+  perspective: 900px;
+  /* El solape negativo crea el abanico; la primera carta no se desplaza. */
+  margin-left: calc(var(--card-w) * -0.42);
+  flex: 0 0 auto;
+}
+
+.pcard:first-child {
+  margin-left: 0;
+}
+
+.pcard--sm {
+  --card-w: 46px;
+}
+
+.pcard__inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-style: preserve-3d;
+}
+
+.pcard__face {
+  position: absolute;
+  inset: 0;
+  border-radius: calc(var(--card-w) * 0.1);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+  box-shadow: var(--shadow-card);
+  overflow: hidden;
+}
+
+/* --- Cara --- */
+.pcard__front {
+  background: linear-gradient(158deg, #fdfcf8 0%, #f1efe7 100%);
+  color: #16201c;
+  border: 1px solid rgba(0, 0, 0, 0.18);
+  display: grid;
+  place-items: center;
+}
+
+.pcard__front.is-red {
+  color: #c0293a;
+}
+
+.pcard__corner {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  line-height: 0.95;
+  font-weight: 700;
+  font-size: calc(var(--card-w) * 0.2);
+}
+
+.pcard__corner b {
+  font-family: var(--font-ui);
+  letter-spacing: -0.02em;
+}
+
+.pcard__corner i {
+  font-style: normal;
+  font-size: calc(var(--card-w) * 0.17);
+}
+
+.pcard__corner--tl {
+  top: calc(var(--card-w) * 0.07);
+  left: calc(var(--card-w) * 0.08);
+}
+
+.pcard__corner--br {
+  bottom: calc(var(--card-w) * 0.07);
+  right: calc(var(--card-w) * 0.08);
+  transform: rotate(180deg);
+}
+
+.pcard__pip {
+  font-size: calc(var(--card-w) * 0.46);
+  line-height: 1;
+  opacity: 0.92;
+}
+
+/* --- Dorso --- */
+.pcard__back {
+  transform: rotateY(180deg);
+  background: linear-gradient(150deg, #123c33 0%, #0b241e 60%, #081b16 100%);
+  border: 1px solid rgba(227, 196, 141, 0.28);
+  display: grid;
+  place-items: center;
+}
+
+/* Trama fina cruzada: el "guilloche" de las cartas de casino. */
+.pcard__pattern {
+  position: absolute;
+  inset: calc(var(--card-w) * 0.055);
+  border: 1px solid rgba(227, 196, 141, 0.3);
+  border-radius: calc(var(--card-w) * 0.06);
+  background-image:
+    repeating-linear-gradient(45deg, rgba(227, 196, 141, 0.11) 0 1px, transparent 1px 6px),
+    repeating-linear-gradient(-45deg, rgba(227, 196, 141, 0.11) 0 1px, transparent 1px 6px);
+}
+
+.pcard__monogram {
+  position: relative;
+  font-family: var(--font-display);
+  font-size: calc(var(--card-w) * 0.3);
+  letter-spacing: 0.04em;
+  color: var(--gold);
+  opacity: 0.85;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+}
+
+/* ------------------------------------------------------------------ *
+ * Manos
+ * ------------------------------------------------------------------ */
+
+.hand {
+  display: flex;
+  align-items: flex-start;
+  padding-left: calc(var(--card-w, 78px) * 0.42);
+}
+
+.hand-slot {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 10px;
+  border-radius: var(--radius);
+  border: 1px solid transparent;
+  transition:
+    border-color 0.35s var(--ease-out),
+    background 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out);
+}
+
+/* La mano en la que te toca decidir se ilumina: siempre sabes donde mirar. */
+.hand-slot.is-active {
+  border-color: rgba(227, 196, 141, 0.42);
+  background: rgba(227, 196, 141, 0.05);
+  box-shadow: 0 0 0 1px rgba(227, 196, 141, 0.1), 0 10px 40px -20px rgba(227, 196, 141, 0.5);
+}
+
+.hand-slot.is-dimmed {
+  opacity: 0.5;
+  transform: scale(0.94);
+}
+
+.hand-total {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 3px 11px;
+  border-radius: var(--radius-pill);
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid var(--border);
+  font-size: 13px;
+  font-weight: 600;
+  backdrop-filter: blur(8px);
+}
+
+.hand-total .soft-mark {
+  color: var(--gold);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.hand-total.is-bust {
+  border-color: var(--ruby-dim);
+  color: var(--ruby);
+}
+
+.hand-total.is-bj {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+.hand-bet {
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+.hand-bet b {
+  color: var(--text);
+  font-weight: 600;
+}
+
+/* Cartel de resultado sobre la mano. */
+.hand-outcome {
+  position: absolute;
+  top: -14px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 3px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  background: var(--surface-3);
+  border: 1px solid var(--border-strong);
+  box-shadow: var(--shadow);
+}
+
+.hand-outcome.win,
+.hand-outcome.blackjack {
+  background: linear-gradient(180deg, #1d6b4c, #144e37);
+  border-color: var(--emerald);
+  color: #d6ffee;
+}
+
+.hand-outcome.lose,
+.hand-outcome.bust {
+  background: linear-gradient(180deg, #6e2830, #4d1c22);
+  border-color: var(--ruby);
+  color: #ffdfe1;
+}
+
+.hand-outcome.push,
+.hand-outcome.surrender {
+  color: var(--text-dim);
+}
+
+@media (max-width: 768px) {
+  .pcard {
+    --card-w: 62px;
+  }
+  .pcard--sm {
+    --card-w: 40px;
+  }
+}
+
+@media (max-width: 420px) {
+  .pcard {
+    --card-w: 52px;
+  }
+}

@@ -1,0 +1,160 @@
+/* ------------------------------------------------------------------ *
+ * La mesa de juego
+ * ------------------------------------------------------------------ */
+
+.game {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 1040px;
+  margin: 0 auto;
+  padding: 16px 20px 24px;
+  gap: 16px;
+  min-height: 0;
+}
+
+/* --- Fieltro --- */
+.felt {
+  position: relative;
+  flex: 1;
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 30px 22px 26px;
+  border-radius: 26px;
+  overflow: hidden;
+  background:
+    radial-gradient(120% 90% at 50% -20%, var(--felt-1) 0%, var(--felt-2) 45%, var(--felt-3) 100%);
+  border: 1px solid rgba(227, 196, 141, 0.16);
+  box-shadow:
+    var(--shadow-lg),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    inset 0 0 90px rgba(0, 0, 0, 0.45);
+}
+
+/* Grano sutil: evita que el degradado se vea plano y digital. */
+.felt::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.4;
+  background-image: radial-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 4px 4px;
+}
+
+.felt__glow {
+  position: absolute;
+  top: -45%;
+  left: 50%;
+  width: 78%;
+  height: 100%;
+  transform: translateX(-50%);
+  background: radial-gradient(closest-side, rgba(227, 196, 141, 0.11), transparent);
+  pointer-events: none;
+}
+
+/* Texto curvo de la casa, como el serigrafiado de una mesa real. */
+.felt__arc {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  text-align: center;
+  font-family: var(--font-display);
+  font-size: 15px;
+  letter-spacing: 0.06em;
+  color: rgba(227, 196, 141, 0.22);
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+.felt__arc span:last-child {
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  font-family: var(--font-ui);
+}
+
+.felt__row {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  min-height: 130px;
+}
+
+.felt__row--player {
+  align-items: flex-end;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.felt__row--player.is-split {
+  gap: 4px;
+}
+
+.felt__empty {
+  margin: 0;
+  align-self: center;
+  color: rgba(233, 239, 236, 0.35);
+  font-size: 13.5px;
+}
+
+.felt__notice {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  z-index: 3;
+  transform: translate(-50%, -50%);
+  padding: 9px 18px;
+  border-radius: var(--radius-pill);
+  background: rgba(8, 11, 10, 0.9);
+  border: 1px solid rgba(227, 196, 141, 0.32);
+  color: var(--gold);
+  font-size: 13px;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow);
+}
+
+.hand-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+}
+
+@media (max-width: 860px) {
+  .game {
+    padding: 12px 12px 18px;
+    gap: 12px;
+  }
+  .felt {
+    min-height: 280px;
+    padding: 22px 12px 18px;
+    border-radius: 20px;
+  }
+  .felt__row {
+    min-height: 106px;
+  }
+  .felt__arc {
+    font-size: 13px;
+  }
+  .felt__arc span:last-child {
+    font-size: 10px;
+  }
+}
+
+@media (max-width: 420px) {
+  .felt__arc {
+    display: none;
+  }
+}
