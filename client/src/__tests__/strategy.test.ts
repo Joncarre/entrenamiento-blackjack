@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { evaluate } from '../engine/cards';
 import { legalActionsFor, newHand, resolveHand, shouldDealerHit } from '../engine/game';
-import { CASINO_RULES, LIBERAL_RULES, type Card, type Rank, type Rules } from '../engine/types';
-import { getAdvice, type LegalActions } from '../strategy';
+import { CASINO_RULES, LIBERAL_RULES, type Action, type Card, type Rank, type Rules } from '../engine/types';
+import { getAdvice, resolvedPairs, type LegalActions } from '../strategy';
 import { DEALER_COLUMNS, HARD, PAIRS, SOFT } from '../strategy/tables';
 
 let n = 0;
@@ -423,5 +423,72 @@ describe('reglas del casino', () => {
   it('un 21 tras dividir Ases no es blackjack: paga 1:1', () => {
     const hand = newHand(10, [c('A'), c('K')], { fromSplit: true, splitAces: true });
     expect(resolveHand(hand, [c('T'), c('8')], C)).toEqual({ outcome: 'win', net: 10 });
+  });
+});
+
+describe('tabla de parejas resuelta', () => {
+  const RULE_SETS: Array<[string, Rules]> = [
+    ['casino', CASINO_RULES],
+    ['permisiva S17', LIBERAL_RULES],
+    ['permisiva H17', { ...LIBERAL_RULES, dealerHitsSoft17: true }],
+    ['sin DAS', { ...CASINO_RULES, doubleAfterSplit: false }],
+  ];
+
+  it('no deja ninguna casilla sin resolver', () => {
+    for (const [name, rules] of RULE_SETS) {
+      for (const [pair, cells] of Object.entries(resolvedPairs(rules))) {
+        for (const cell of cells) {
+          expect(cell, `${name} · par ${pair}`).not.toBe('N');
+        }
+      }
+    }
+  });
+
+  it('un par de doses que no se divide se juega como 4 y por tanto se pide', () => {
+    const cells = resolvedPairs(CASINO_RULES)[2];
+    // Contra 8, 9, 10 y As no se divide: queda un 4, que siempre pide.
+    for (const i of [6, 7, 8, 9]) expect(cells[i]).toBe('H');
+  });
+
+  it('coincide celda a celda con lo que recomienda el motor', () => {
+    // Si la tabla que se muestra y el corrector se separasen, la pantalla
+    // estaria ensenando una jugada y el entrenador exigiendo otra.
+    const expected: Record<string, Action> = {
+      H: 'hit',
+      S: 'stand',
+      Dh: 'double',
+      Ds: 'double',
+      P: 'split',
+      Ph: 'split',
+      Rh: 'surrender',
+      Rs: 'surrender',
+      Rp: 'surrender',
+    };
+
+    for (const [name, rules] of RULE_SETS) {
+      const table = resolvedPairs(rules);
+      for (const [pair, cells] of Object.entries(table)) {
+        const value = Number(pair);
+        const rank: Rank = value === 11 ? 'A' : value === 10 ? 'T' : (String(value) as Rank);
+
+        cells.forEach((cell, i) => {
+          const dealerValue = DEALER_COLUMNS[i];
+          const dealerRank: Rank =
+            dealerValue === 11 ? 'A' : dealerValue === 10 ? 'T' : (String(dealerValue) as Rank);
+
+          const legal: LegalActions = {
+            hit: true,
+            stand: true,
+            double: rules.doubleAnyTotal || [9, 10, 11].includes(value * 2),
+            split: true,
+            surrender: rules.lateSurrender,
+          };
+          const got = getAdvice([c(rank), c(rank)], c(dealerRank), rules, legal);
+          expect(got.action, `${name} · ${pair},${pair} vs ${dealerValue} (celda ${cell})`).toBe(
+            expected[cell],
+          );
+        });
+      }
+    }
   });
 });

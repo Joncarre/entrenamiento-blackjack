@@ -182,3 +182,39 @@ export function resolvedTables(rules: TableRules) {
 
   return { hard, soft, pairs };
 }
+
+/** Total duro con el que te quedas si no divides la pareja. */
+const PAIR_TOTAL: Record<number, number> = {
+  2: 4,
+  3: 6,
+  4: 8,
+  5: 10,
+  6: 12,
+  7: 14,
+  8: 16,
+  9: 18,
+  10: 20,
+  // A,A quedaria en 12 blando, pero siempre se divide: nunca se consulta.
+};
+
+/**
+ * Tabla de parejas con las casillas de "no dividir" ya sustituidas por la
+ * jugada que toca al jugar el total.
+ *
+ * Es la forma en que se leen las tablas de casino: cada casilla dice que hacer,
+ * sin obligar a saltar a la tabla de duros a mitad de decision.
+ */
+export function resolvedPairs(rules: TableRules): Record<number, Cell[]> {
+  const { hard, pairs } = resolvedTables(rules);
+  const out: Record<number, Cell[]> = {};
+
+  for (const [key, cells] of Object.entries(pairs)) {
+    const pairValue = Number(key);
+    const total = PAIR_TOTAL[pairValue];
+    // La tabla de duros arranca en 5, pero un par de doses suma 4. Por debajo
+    // de 5 la jugada es siempre pedir, que es justo lo que dice la fila 5.
+    const fallback = total !== undefined ? hard[Math.max(total, 5)] : undefined;
+    out[pairValue] = cells.map((cell, i) => (cell === 'N' && fallback ? fallback[i] : cell));
+  }
+  return out;
+}

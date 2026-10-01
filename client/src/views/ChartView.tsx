@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, type SituationStat } from '../lib/api';
 import { useGame } from '../store/useGame';
-import { type Cell, DEALER_COLUMNS, resolvedTables } from '../strategy';
+import { type Cell, DEALER_COLUMNS, resolvedPairs, resolvedTables } from '../strategy';
 
 /**
  * Etiqueta que se pinta dentro de cada celda.
@@ -116,7 +116,7 @@ export function ChartView() {
   const [heat, setHeat] = useState(false);
   const [stats, setStats] = useState<Map<string, SituationStat>>(new Map());
 
-  const tables = useMemo(() => resolvedTables(rules), [rules]);
+  const tables = useMemo(() => ({ ...resolvedTables(rules), pairs: resolvedPairs(rules) }), [rules]);
 
   useEffect(() => {
     if (!heat) return;
@@ -143,7 +143,7 @@ export function ChartView() {
     {
       id: 'pairs',
       title: 'Parejas',
-      note: 'Se consultan antes que el total. Un punto significa "no dividir": juega el total.',
+      note: 'Se consultan antes que el total. Donde no toca dividir, la casilla ya indica como jugar la mano.',
       // Ascendente, igual que duros y blandos: 2,2 arriba y A,A al final.
       rows: Object.entries(tables.pairs)
         .sort((a, b) => Number(a[0]) - Number(b[0]))
