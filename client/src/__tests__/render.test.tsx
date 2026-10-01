@@ -2,7 +2,7 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import App from '../App';
-import { DEFAULT_RULES, type Card, type Rank } from '../engine/types';
+import { CASINO_RULES, type Card, type Rank } from '../engine/types';
 import { DEFAULT_SETTINGS } from '../store/settings';
 import { useGame } from '../store/useGame';
 import { ChartView } from '../views/ChartView';
@@ -112,7 +112,7 @@ describe('la mesa reacciona al juego', () => {
     // El estado se fija despues de montar: init() reconstruye el mazo al arrancar.
     await act(async () => {
       useGame.setState({
-        settings: { ...DEFAULT_SETTINGS, rules: { ...DEFAULT_RULES, penetration: 1 }, speed: 'instant' },
+        settings: { ...DEFAULT_SETTINGS, rules: { ...CASINO_RULES, penetration: 1 }, speed: 'instant' },
         shoeState: { shoe: deck(['T', '9', '6', '8', '5']), index: 0, shuffles: 1 },
         bankroll: 100,
         pendingBet: 10,
@@ -129,8 +129,10 @@ describe('la mesa reacciona al juego', () => {
     expect(document.querySelectorAll('.pcard')).toHaveLength(4);
     expect(screen.getByText('Pedir')).toBeTruthy();
     expect(screen.getByText('Plantarse')).toBeTruthy();
-    // 16 contra 9: la tabla manda rendirse, asi que el boton debe estar activo.
-    expect(screen.getByText('Rendirse').closest('button')?.disabled).toBe(false);
+    // La mesa de referencia no ofrece rendicion: el boton queda desactivado.
+    expect(screen.getByText('Rendirse').closest('button')?.disabled).toBe(true);
+    // 16 duro tampoco se puede doblar: solo se dobla con 9, 10 u 11.
+    expect(screen.getByText('Doblar').closest('button')?.disabled).toBe(true);
   });
 
   it('muestra el resultado de la mano al terminar la ronda', async () => {
@@ -138,7 +140,7 @@ describe('la mesa reacciona al juego', () => {
 
     await act(async () => {
       useGame.setState({
-        settings: { ...DEFAULT_SETTINGS, rules: { ...DEFAULT_RULES, penetration: 1 }, speed: 'instant' },
+        settings: { ...DEFAULT_SETTINGS, rules: { ...CASINO_RULES, penetration: 1 }, speed: 'instant' },
         shoeState: { shoe: deck(['T', 'T', '9', '8']), index: 0, shuffles: 1 },
         bankroll: 100,
         pendingBet: 10,

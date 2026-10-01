@@ -19,6 +19,8 @@
  * Columnas = carta descubierta del crupier, en orden: 2 3 4 5 6 7 8 9 10 A
  */
 
+import type { Rules } from '../engine/types';
+
 export type Cell =
   | 'H' | 'S' | 'Dh' | 'Ds' | 'P' | 'Ph' | 'N' | 'Rh' | 'Rs' | 'Rp';
 
@@ -110,8 +112,32 @@ export function dealerColumn(dealerValue: number): number {
   return idx;
 }
 
-/** Aplica las desviaciones H17 sobre copias de las tablas base. */
-export function resolvedTables(dealerHitsSoft17: boolean) {
+/** Totales con los que las mesas restrictivas permiten doblar. */
+export const RESTRICTED_DOUBLE_TOTALS = [9, 10, 11];
+
+/** Subconjunto de reglas que determina la forma de la tabla. */
+export type TableRules = Pick<
+  Rules,
+  'dealerHitsSoft17' | 'doubleAnyTotal' | 'doubleAfterSplit' | 'lateSurrender'
+>;
+
+const mapRow = (cells: Cell[], fn: (c: Cell) => Cell): Cell[] => cells.map(fn);
+
+/** Una casilla de doble se convierte en la jugada que indica su sufijo. */
+const dropDouble = (c: Cell): Cell => (c === 'Dh' ? 'H' : c === 'Ds' ? 'S' : c);
+
+/** Una casilla de rendicion cae a su alternativa cuando la mesa no la ofrece. */
+const dropSurrender = (c: Cell): Cell =>
+  c === 'Rh' ? 'H' : c === 'Rs' ? 'S' : c === 'Rp' ? 'P' : c;
+
+/**
+ * Devuelve la tabla que realmente aplica en una mesa concreta.
+ *
+ * No se limita a las desviaciones H17: tambien colapsa las casillas que las
+ * reglas de la casa hacen imposibles, para que lo que se muestra y lo que se
+ * corrige sea exactamente lo que hay que memorizar para esa mesa.
+ */
+export function resolvedTables(rules: TableRules) {
   const hard: Record<number, Cell[]> = {};
   const soft: Record<number, Cell[]> = {};
   const pairs: Record<number, Cell[]> = {};
@@ -119,10 +145,40 @@ export function resolvedTables(dealerHitsSoft17: boolean) {
   for (const [k, v] of Object.entries(SOFT)) soft[Number(k)] = [...v];
   for (const [k, v] of Object.entries(PAIRS)) pairs[Number(k)] = [...v];
 
-  if (dealerHitsSoft17) {
+  if (rules.dealerHitsSoft17) {
     for (const [total, dealer, cell] of H17_HARD_OVERRIDES) hard[total][dealerColumn(dealer)] = cell;
     for (const [total, dealer, cell] of H17_SOFT_OVERRIDES) soft[total][dealerColumn(dealer)] = cell;
     for (const [pair, dealer, cell] of H17_PAIR_OVERRIDES) pairs[pair][dealerColumn(dealer)] = cell;
   }
+
+  // Mesa sin rendicion: cada casilla R pasa a su jugada alternativa.
+  if (!rules.lateSurrender) {
+    for (const t of Object.keys(hard)) hard[Number(t)] = mapRow(hard[Number(t)], dropSurrender);
+    for (const t of Object.keys(soft)) soft[Number(t)] = mapRow(soft[Number(t)], dropSurrender);
+    for (const p of Object.keys(pairs)) pairs[Number(p)] = mapRow(pairs[Number(p)], dropSurrender);
+  }
+
+  // Mesa que solo deja doblar con 9, 10 u 11 puntos. Como ningun total blando
+  // cae en ese rango, desaparecen todos los dobles de manos blandas.
+  if (!rules.doubleAnyTotal) {
+    for (const t of Object.keys(hard)) {
+      if (!RESTRICTED_DOUBLE_TOTALS.includes(Number(t))) {
+        hard[Number(t)] = mapRow(hard[Number(t)], dropDouble);
+      }
+    }
+    for (const t of Object.keys(soft)) {
+      if (!RESTRICTED_DOUBLE_TOTALS.includes(Number(t))) {
+        soft[Number(t)] = mapRow(soft[Number(t)], dropDouble);
+      }
+    }
+  }
+
+  // Sin doble tras dividir, las divisiones marginales dejan de compensar.
+  if (!rules.doubleAfterSplit) {
+    for (const p of Object.keys(pairs)) {
+      pairs[Number(p)] = mapRow(pairs[Number(p)], (c) => (c === 'Ph' ? 'H' : c));
+    }
+  }
+
   return { hard, soft, pairs };
 }

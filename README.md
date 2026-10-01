@@ -8,6 +8,36 @@ No es un juego de casino. Es un entrenador con mesa de casino.
 
 ---
 
+## Las reglas de la mesa
+
+La aplicación viene configurada con el reglamento del **casino de Madrid** donde vas a
+jugar, porque las reglas de la casa cambian la tabla óptima:
+
+| Regla | En esta mesa |
+|---|---|
+| Barajas | **6** (fijo) |
+| La banca | Se planta con **17 o más**, pide con 16 o menos (S17) |
+| Doblar | **Solo con 9, 10 u 11 puntos**, y recibes una sola carta |
+| Doblar tras dividir | Sí |
+| Dividir | **A dos manos**: una sola división |
+| Ases divididos | Un solo naipe por mano; un 10 después **no es blackjack** |
+| Blackjack | Paga **3:2** (una vez y media) |
+| Seguro | Disponible con As del crupier, paga **2:1** |
+| Rendición | **No existe** (el reglamento no la contempla) |
+
+Dos de estas reglas mueven bastantes casillas respecto a la tabla genérica que se
+encuentra por internet:
+
+- **Doblar solo con 9/10/11 elimina todos los dobles de manos blandas.** A,2 a A,6
+  simplemente piden, y A,7 contra 3-6 **se planta** en vez de doblar.
+- **Sin rendición**, 15 y 16 contra 9, 10 o As **se piden**. No hay escapatoria.
+
+Puedes cambiar cualquier regla en **Ajustes** si vas a otra mesa: la tabla, el corrector
+y las estadísticas se recalculan solos. Si te apartas del perfil del casino, la propia
+pantalla te avisa.
+
+---
+
 ## La idea
 
 En Blackjack el número de situaciones distintas es pequeño y, para cada una, existe una
@@ -38,7 +68,7 @@ El único requisito es **Node 20 o superior**. La base de datos SQLite se crea s
 Otros comandos:
 
 ```bash
-npm test         # 76 tests: motor, tabla de estrategia, flujo de ronda y render
+npm test         # 94 tests: motor, tabla de estrategia, reglas del casino, flujo y render
 npm run build    # compila cliente y servidor
 npm start        # sirve el build ya compilado desde el propio servidor
 npm run typecheck
@@ -84,10 +114,12 @@ real de cada casilla.
 - Ventaja real obtenida por euro apostado y tiempo medio de decisión.
 
 ### Configuración
-Velocidad de reparto (lenta / normal / rápida / instantánea), número de barajas (1 a 8),
-penetración del mazo, cartera inicial, apuesta base, y las reglas de la casa: H17/S17,
-doble tras dividir, rendición tardía, pago del blackjack (3:2 o 6:5) y máximo de manos
-por división. **Cambiar las reglas recalcula la tabla óptima al instante.**
+Velocidad de reparto (lenta / normal / rápida / instantánea), penetración del mazo,
+cartera inicial, apuesta base, y todas las reglas de la casa: H17/S17, doble restringido
+a 9/10/11, doble tras dividir, rendición, pago del blackjack (3:2 o 6:5) y máximo de
+manos por división. **Cambiar las reglas recalcula la tabla óptima al instante.**
+
+Las barajas están fijadas en 6, como la mesa de referencia.
 
 También hay un contador **Hi-Lo** opcional (corriente y real) para entrenamiento avanzado.
 
@@ -108,8 +140,13 @@ También hay un contador **Hi-Lo** opcional (corriente y real) para entrenamient
 
 Vive en [`client/src/strategy/tables.ts`](client/src/strategy/tables.ts), escrita como
 matrices legibles para poder auditarla de un vistazo. Es la estrategia básica
-multi-baraja (4-8 mazos) compuesta por total, con las desviaciones de H17 aplicadas
-encima de la tabla S17.
+multi-baraja compuesta por total.
+
+`resolvedTables(rules)` devuelve **la tabla que realmente aplica en tu mesa**, no la
+genérica: aplica las desviaciones de H17 y además colapsa las casillas que las reglas de
+la casa hacen imposibles (los dobles que la mesa no permite pasan a pedir o plantarse,
+las rendiciones caen a su alternativa). Por eso lo que ves en la pestaña *Tabla* es
+exactamente lo que tienes que memorizar, sin notas al pie que traducir sobre la marcha.
 
 Referencia: Wizard of Odds / Blackjack Apprenticeship.
 
@@ -128,8 +165,10 @@ Códigos de celda:
 
 El orden de evaluación importa y es: **rendición → división → doblar → pedir/plantarse**.
 
-52 tests cubren esta tabla casilla por casilla, incluidos los casos frontera (A,7 contra
-2 según H17; 8,8 contra A; 9,9 contra 7-10-A; las parejas que dependen del DAS).
+70 tests cubren esta tabla casilla por casilla: los casos frontera de la tabla de
+referencia (A,7 contra 2 según H17; 8,8 contra A; 9,9 contra 7-10-A; las parejas que
+dependen del DAS) y un bloque específico que fija el comportamiento con las reglas del
+casino.
 
 ---
 

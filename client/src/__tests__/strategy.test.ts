@@ -1,7 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { evaluate } from '../engine/cards';
 import { legalActionsFor, newHand, resolveHand, shouldDealerHit } from '../engine/game';
-import { DEFAULT_RULES, type Card, type Rank, type Rules } from '../engine/types';
+import { CASINO_RULES, LIBERAL_RULES, type Card, type Rank, type Rules } from '../engine/types';
 import { getAdvice, type LegalActions } from '../strategy';
 import { DEALER_COLUMNS, HARD, PAIRS, SOFT } from '../strategy/tables';
 
@@ -11,8 +11,10 @@ const c = (rank: Rank): Card => ({ id: `t${n++}`, rank, suit: 'S' });
 const ALL_LEGAL: LegalActions = { hit: true, stand: true, double: true, split: true, surrender: true };
 const NO_EXTRAS: LegalActions = { hit: true, stand: true, double: false, split: false, surrender: false };
 
-const S17: Rules = { ...DEFAULT_RULES, dealerHitsSoft17: false };
-const H17: Rules = { ...DEFAULT_RULES, dealerHitsSoft17: true };
+// La tabla de referencia se comprueba sobre una mesa permisiva; las mesas
+// restrictivas tienen su propio bloque al final del fichero.
+const S17: Rules = { ...LIBERAL_RULES, dealerHitsSoft17: false };
+const H17: Rules = { ...LIBERAL_RULES, dealerHitsSoft17: true };
 
 const advice = (player: Rank[], dealer: Rank, rules = S17, legal = ALL_LEGAL) =>
   getAdvice(player.map(c), c(dealer), rules, legal).action;
@@ -281,5 +283,145 @@ describe('acciones legales', () => {
   it('permite dividir figuras distintas del mismo valor', () => {
     const l = legalActionsFor({ ...base, hand: newHand(10, [c('K'), c('Q')]) });
     expect(l.split).toBe(true);
+  });
+});
+
+/* ------------------------------------------------------------------ *
+ * Mesa de referencia: casino de Madrid.
+ * 6 barajas · S17 · doble solo con 9/10/11 · sin rendicion ·
+ * una sola division · blackjack 3:2.
+ * ------------------------------------------------------------------ */
+describe('reglas del casino', () => {
+  const C = CASINO_RULES;
+  // En esta mesa doblar y rendirse no dependen del momento, sino de la casa.
+  const legal: LegalActions = { hit: true, stand: true, double: true, split: true, surrender: false };
+  const cas = (player: Rank[], dealer: Rank) => advice(player, dealer, C, legal);
+
+  it('la banca se planta con 17, incluido el 17 blando', () => {
+    expect(shouldDealerHit([c('A'), c('6')], C)).toBe(false);
+    expect(shouldDealerHit([c('T'), c('7')], C)).toBe(false);
+    expect(shouldDealerHit([c('T'), c('6')], C)).toBe(true);
+  });
+
+  it('juega siempre con 6 barajas', () => {
+    expect(C.decks).toBe(6);
+  });
+
+  it('paga el blackjack a 3:2', () => {
+    expect(C.blackjackPayout).toBe(1.5);
+  });
+
+  describe('solo se doblan 9, 10 y 11', () => {
+    it('mantiene los dobles de 9, 10 y 11 duros', () => {
+      expect(cas(['5', '4'], '4')).toBe('double');
+      expect(cas(['6', '4'], '9')).toBe('double');
+      expect(cas(['6', '5'], '5')).toBe('double');
+    });
+
+    it('elimina todos los dobles de manos blandas', () => {
+      // A,2 a A,6 pasan a pedir.
+      expect(cas(['A', '2'], '5')).toBe('hit');
+      expect(cas(['A', '3'], '6')).toBe('hit');
+      expect(cas(['A', '4'], '4')).toBe('hit');
+      expect(cas(['A', '5'], '6')).toBe('hit');
+      expect(cas(['A', '6'], '3')).toBe('hit');
+    });
+
+    it('A,7 contra 3-6 se planta en vez de doblar', () => {
+      for (const d of ['3', '4', '5', '6'] as Rank[]) expect(cas(['A', '7'], d)).toBe('stand');
+      // El resto de la fila no cambia.
+      expect(cas(['A', '7'], '2')).toBe('stand');
+      expect(cas(['A', '7'], '7')).toBe('stand');
+      expect(cas(['A', '7'], '9')).toBe('hit');
+    });
+
+    it('5,5 sigue doblandose porque suma 10', () => {
+      expect(cas(['5', '5'], '6')).toBe('double');
+      expect(cas(['5', '5'], 'T')).toBe('hit');
+    });
+
+    it('no permite doblar un total fuera de 9, 10 u 11', () => {
+      const l = legalActionsFor({
+        hand: newHand(10, [c('T'), c('2')]),
+        totalHands: 1,
+        rules: C,
+        available: 1000,
+        dealerHasBlackjack: false,
+      });
+      expect(l.double).toBe(false);
+    });
+  });
+
+  describe('sin rendicion', () => {
+    it('16 contra 9, 10 y A pasa a pedir', () => {
+      for (const d of ['9', 'T', 'A'] as Rank[]) expect(cas(['T', '6'], d)).toBe('hit');
+    });
+
+    it('15 contra 10 pasa a pedir', () => {
+      expect(cas(['T', '5'], 'T')).toBe('hit');
+    });
+
+    it('17 duro se planta siempre', () => {
+      expect(cas(['T', '7'], 'A')).toBe('stand');
+    });
+
+    it('8,8 contra A se divide', () => {
+      expect(cas(['8', '8'], 'A')).toBe('split');
+    });
+
+    it('la mesa no ofrece rendirse en ningun momento', () => {
+      const l = legalActionsFor({
+        hand: newHand(10, [c('T'), c('6')]),
+        totalHands: 1,
+        rules: C,
+        available: 1000,
+        dealerHasBlackjack: false,
+      });
+      expect(l.surrender).toBe(false);
+    });
+  });
+
+  describe('division a dos manos', () => {
+    it('permite la primera division', () => {
+      const l = legalActionsFor({
+        hand: newHand(10, [c('8'), c('8')]),
+        totalHands: 1,
+        rules: C,
+        available: 1000,
+        dealerHasBlackjack: false,
+      });
+      expect(l.split).toBe(true);
+    });
+
+    it('no permite volver a dividir una vez hay dos manos', () => {
+      const l = legalActionsFor({
+        hand: newHand(10, [c('8'), c('8')], { fromSplit: true }),
+        totalHands: 2,
+        rules: C,
+        available: 1000,
+        dealerHasBlackjack: false,
+      });
+      expect(l.split).toBe(false);
+    });
+
+    it('mantiene las divisiones obligatorias y las prohibidas', () => {
+      expect(cas(['A', 'A'], 'T')).toBe('split');
+      expect(cas(['8', '8'], 'T')).toBe('split');
+      expect(cas(['T', 'K'], '6')).toBe('stand');
+      expect(cas(['9', '9'], '7')).toBe('stand');
+    });
+  });
+
+  it('el resto de la tabla dura no se mueve', () => {
+    expect(cas(['T', '2'], '4')).toBe('stand');
+    expect(cas(['T', '2'], '2')).toBe('hit');
+    expect(cas(['T', '3'], '5')).toBe('stand');
+    expect(cas(['T', '4'], '7')).toBe('hit');
+    expect(cas(['T', '9'], 'A')).toBe('stand');
+  });
+
+  it('un 21 tras dividir Ases no es blackjack: paga 1:1', () => {
+    const hand = newHand(10, [c('A'), c('K')], { fromSplit: true, splitAces: true });
+    expect(resolveHand(hand, [c('T'), c('8')], C)).toEqual({ outcome: 'win', net: 10 });
   });
 });

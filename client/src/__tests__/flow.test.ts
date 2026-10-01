@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from 'vitest';
-import { DEFAULT_RULES, type Card, type Rank } from '../engine/types';
+import { LIBERAL_RULES, type Card, type Rank } from '../engine/types';
 import { DEFAULT_SETTINGS } from '../store/settings';
 import { useGame } from '../store/useGame';
 
@@ -7,7 +7,7 @@ let n = 0;
 const c = (rank: Rank): Card => ({ id: `f${n++}`, rank, suit: 'S' });
 
 /** Penetracion total: evita que el motor rebaraje el mazo preparado del test. */
-const TEST_RULES = { ...DEFAULT_RULES, penetration: 1 };
+const TEST_RULES = { ...LIBERAL_RULES, penetration: 1 };
 
 /**
  * Prepara una mesa determinista. El orden de reparto es

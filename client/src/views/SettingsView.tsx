@@ -1,3 +1,4 @@
+import { CASINO_RULES, type Rules } from '../engine/types';
 import { useGame } from '../store/useGame';
 import {
   ASSIST_HELP,
@@ -9,7 +10,18 @@ import {
 
 const SPEEDS: Speed[] = ['slow', 'normal', 'fast', 'instant'];
 const ASSISTS: AssistMode[] = ['hint', 'feedback', 'off'];
-const DECKS = [1, 2, 4, 6, 8];
+
+/** Compara las reglas activas con un perfil, ignorando ajustes de ritmo. */
+function sameRules(a: Rules, b: Rules) {
+  return (
+    a.dealerHitsSoft17 === b.dealerHitsSoft17 &&
+    a.doubleAfterSplit === b.doubleAfterSplit &&
+    a.lateSurrender === b.lateSurrender &&
+    a.maxSplitHands === b.maxSplitHands &&
+    a.doubleAnyTotal === b.doubleAnyTotal &&
+    a.blackjackPayout === b.blackjackPayout
+  );
+}
 
 export function SettingsView() {
   const settings = useGame((s) => s.settings);
@@ -19,6 +31,7 @@ export function SettingsView() {
   const shuffleNow = useGame((s) => s.shuffleNow);
 
   const { rules } = settings;
+  const isCasino = sameRules(rules, CASINO_RULES);
 
   return (
     <div className="page">
@@ -30,6 +43,30 @@ export function SettingsView() {
           </p>
         </div>
       </header>
+
+      <section className={`panel panel--profile${isCasino ? ' is-on' : ''}`}>
+        <div className="panel__head">
+          <div>
+            <h2 className="panel__title">Mesa del casino</h2>
+            <p className="panel__note">
+              6 barajas · la banca se planta con 17 · solo se dobla con 9, 10 u 11 · una sola division ·
+              blackjack 3:2 · seguro 2:1 · sin rendicion.
+            </p>
+          </div>
+          {isCasino ? (
+            <span className="badge">Reglas activas</span>
+          ) : (
+            <button className="btn btn--gold btn--sm" onClick={() => update({}, CASINO_RULES)}>
+              Restaurar
+            </button>
+          )}
+        </div>
+        {!isCasino && (
+          <p className="panel__warn">
+            Estas entrenando con reglas distintas a las de tu mesa. La tabla optima no es la misma.
+          </p>
+        )}
+      </section>
 
       <section className="panel">
         <h2 className="panel__title">Entrenamiento</h2>
@@ -87,18 +124,11 @@ export function SettingsView() {
           </div>
         </Field>
 
-        <Field label="Barajas en juego" hint="Mas barajas = menos ventaja para el jugador y conteo mas diluido.">
-          <div className="segmented">
-            {DECKS.map((d) => (
-              <button
-                key={d}
-                className={`segmented__opt num${rules.decks === d ? ' is-on' : ''}`}
-                onClick={() => update({}, { decks: d })}
-              >
-                {d}
-              </button>
-            ))}
-          </div>
+        <Field
+          label="Barajas en juego"
+          hint="Fijo en 6, como la mesa del casino: 3 barajas de un color y 3 de otro."
+        >
+          <span className="fixedvalue num">6 barajas · {6 * 52} cartas</span>
         </Field>
 
         <Field
@@ -161,7 +191,7 @@ export function SettingsView() {
 
         <Switch
           label="El crupier pide con 17 blando (H17)"
-          hint="Empeora tus opciones y cambia seis casillas de la tabla."
+          hint="Tu casino usa S17: la banca se planta con 17 o mas y pide con 16 o menos."
           checked={rules.dealerHitsSoft17}
           onChange={(v) => update({}, { dealerHitsSoft17: v })}
         />
@@ -173,13 +203,13 @@ export function SettingsView() {
         />
         <Switch
           label="Rendicion tardia"
-          hint="Permite abandonar la mano perdiendo solo la mitad."
+          hint="Tu casino no la ofrece: su reglamento no la contempla. Con ella, 15 y 16 contra cartas altas se abandonarian."
           checked={rules.lateSurrender}
           onChange={(v) => update({}, { lateSurrender: v })}
         />
         <Switch
           label="Doblar con cualquier total"
-          hint="Si se desactiva, solo se puede doblar con 9, 10 u 11."
+          hint="Tu casino NO lo permite: alli solo se dobla con 9, 10 u 11, y eso elimina todos los dobles de manos blandas."
           checked={rules.doubleAnyTotal}
           onChange={(v) => update({}, { doubleAnyTotal: v })}
         />
@@ -201,7 +231,7 @@ export function SettingsView() {
           </div>
         </Field>
 
-        <Field label="Maximo de manos por division">
+        <Field label="Maximo de manos por division" hint="Tu casino permite jugar a dos manos: una sola division.">
           <div className="segmented">
             {[2, 3, 4].map((n) => (
               <button

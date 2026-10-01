@@ -74,8 +74,34 @@ export interface Rules {
   penetration: number;
 }
 
-export const DEFAULT_RULES: Rules = {
-  decks: 6,
+/** El numero de barajas esta fijado: la mesa de referencia juega siempre con 6. */
+export const DECKS = 6;
+
+/**
+ * Reglas de la mesa de referencia (casino de Madrid), tomadas de su reglamento:
+ *
+ *  - 6 barajas de 52 cartas.
+ *  - La banca se planta con 17 o mas y pide con 16 o menos  -> S17.
+ *  - Solo se dobla con 9, 10 u 11 puntos y se recibe una sola carta.
+ *  - Las parejas se juegan "a dos manos": una sola division.
+ *  - Los Ases divididos reciben un unico naipe y un 10 posterior no es blackjack.
+ *  - El blackjack paga una vez y media (3:2) y el seguro 2:1.
+ *  - El reglamento no contempla la rendicion, asi que no esta disponible.
+ */
+export const CASINO_RULES: Rules = {
+  decks: DECKS,
+  dealerHitsSoft17: false,
+  doubleAfterSplit: true,
+  lateSurrender: false,
+  maxSplitHands: 2,
+  doubleAnyTotal: false,
+  blackjackPayout: 1.5,
+  penetration: 0.75,
+};
+
+/** Mesa permisiva habitual en tablas de referencia americanas. */
+export const LIBERAL_RULES: Rules = {
+  decks: DECKS,
   dealerHitsSoft17: false,
   doubleAfterSplit: true,
   lateSurrender: true,
@@ -84,6 +110,8 @@ export const DEFAULT_RULES: Rules = {
   blackjackPayout: 1.5,
   penetration: 0.75,
 };
+
+export const DEFAULT_RULES: Rules = CASINO_RULES;
 
 export type RoundPhase =
   | 'betting'

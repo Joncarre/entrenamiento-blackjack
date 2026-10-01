@@ -88,7 +88,7 @@ export function getAdvice(
   rules: Rules,
   legal: LegalActions,
 ): StrategyAdvice {
-  const { hard, soft, pairs } = resolvedTables(rules.dealerHitsSoft17);
+  const { hard, soft, pairs } = resolvedTables(rules);
   const dv = strategyRank(dealerUpcard.rank);
   const col = dealerColumn(dv);
   const value = evaluate(playerCards);
