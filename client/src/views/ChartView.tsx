@@ -10,34 +10,36 @@ import { type Cell, DEALER_COLUMNS, resolvedPairs, resolvedTables } from '../str
  * o la mano no te dejan hacerla. Asi "Rp" se lee "rendirse; si no se puede,
  * pedir", sin tener que recordar ninguna nota al pie.
  *
- * Ojo: la minuscula de la etiqueta no sigue el codigo interno de la tabla,
- * que esta en ingles. El 'Rh' del fuente se muestra aqui como "Rp".
+ * Ojo: las letras son las castellanas de la jugada y NO coinciden con el codigo
+ * interno de la tabla, que esta en ingles. Dos cruces que despistan al leer el
+ * fuente: la celda 'S' (stand) se pinta "Q" de quedarse, y la celda 'P' (split)
+ * se pinta "S" de separar.
  */
 const CELL_TEXT: Record<Cell, string> = {
   H: 'P',
   S: 'Q',
   Dh: 'Dp',
   Ds: 'Dq',
-  P: 'V',
-  Ph: 'Vp',
+  P: 'S',
+  Ph: 'Sp',
   N: '·',
   Rh: 'Rp',
   Rs: 'Rq',
-  Rp: 'Rv',
+  Rp: 'Rs',
 };
 
 /** Texto largo de cada codigo. Alimenta la leyenda y el tooltip de la celda. */
 const CELL_HELP: Record<Cell, string> = {
   H: 'Pedir',
-  S: 'Plantarse',
+  S: 'Quedarse (plantarse)',
   Dh: 'Doblar; si no se puede, pedir',
-  Ds: 'Doblar; si no se puede, plantarse',
-  P: 'Dividir',
-  Ph: 'Dividir si se puede doblar despues; si no, pedir',
-  N: 'No dividir: juega el total',
-  Rh: 'Rendirse; si no se puede, pedir',
-  Rs: 'Rendirse; si no se puede, plantarse',
-  Rp: 'Rendirse; si no se puede, dividir',
+  Ds: 'Doblar; si no se puede, quedarse',
+  P: 'Separar la pareja (dividir)',
+  Ph: 'Separar si se puede doblar despues; si no, pedir',
+  N: 'No separar: juega el total',
+  Rh: 'Retirarse; si no se puede, pedir',
+  Rs: 'Retirarse; si no se puede, quedarse',
+  Rp: 'Retirarse; si no se puede, separar',
 };
 
 const LEGEND: Cell[] = ['H', 'S', 'Dh', 'Ds', 'P', 'Ph', 'Rh', 'Rs', 'Rp'];

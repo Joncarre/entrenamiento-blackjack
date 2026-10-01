@@ -116,15 +116,18 @@ describe('cada vista se renderiza sin errores', () => {
     await mount(<ChartView />);
 
     const cells = [...document.querySelectorAll('.chart__cell')].map((el) => el.textContent);
-    expect(cells).toContain('Rp'); // rendirse, si no pedir
+    expect(cells).toContain('Rp'); // retirarse, si no pedir
     expect(cells).toContain('Dp'); // doblar, si no pedir
     expect(cells).toContain('Dq'); // doblar, si no plantarse
-    // Ya no queda ninguna 'R' suelta sin indicar la alternativa.
+    // Ya no queda ninguna 'R' ni 'D' suelta sin indicar la alternativa.
     expect(cells).not.toContain('R');
     expect(cells).not.toContain('D');
+    // Y separar se marca con S, no con V.
+    expect(cells).not.toContain('V');
+    expect(cells).not.toContain('Vp');
 
     const legend = [...document.querySelectorAll('.legend__item')].map((el) => el.textContent);
-    expect(legend.some((t) => t?.includes('Rendirse; si no se puede, pedir'))).toBe(true);
+    expect(legend.some((t) => t?.includes('Retirarse; si no se puede, pedir'))).toBe(true);
 
     useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
   });
@@ -152,8 +155,8 @@ describe('cada vista se renderiza sin errores', () => {
     await mount(<ChartView />);
 
     const cells = [...document.querySelectorAll('.chart__cell')];
-    const v = cells.filter((el) => el.textContent === 'V');
-    const vp = cells.filter((el) => el.textContent === 'Vp');
+    const v = cells.filter((el) => el.textContent === 'S');
+    const vp = cells.filter((el) => el.textContent === 'Sp');
     expect(v.length).toBeGreaterThan(0);
     expect(vp.length).toBeGreaterThan(0);
 

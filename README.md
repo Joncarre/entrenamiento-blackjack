@@ -167,9 +167,21 @@ El orden de evaluación importa y es: **rendición → división → doblar → 
 
 En pantalla las casillas se etiquetan en castellano con el patrón **mayúscula =
 jugada que quieres hacer, minúscula = a lo que recurres si no puedes**: `Rp` es
-«rendirse; si no se puede, pedir», `Dq` es «doblar; si no se puede, plantarse». Así la
-casilla se lee sola, sin notas al pie. No confundir con los códigos internos de la
-tabla, que están en inglés: el `Rh` del fuente se muestra como `Rp`.
+«retirarse; si no se puede, pedir», `Dq` es «doblar; si no se puede, quedarse». Así la
+casilla se lee sola, sin notas al pie.
+
+| En pantalla | Jugada |
+|---|---|
+| `P` | Pedir |
+| `Q` | Quedarse (plantarse) |
+| `S` | Separar la pareja (dividir) |
+| `Dp` / `Dq` | Doblar; si no, pedir / quedarse |
+| `Sp` | Separar si hay doble tras split; si no, pedir |
+| `Rp` / `Rq` / `Rs` | Retirarse; si no, pedir / quedarse / separar |
+
+No confundir con los códigos internos de la tabla, que están en inglés y se cruzan con
+estos: la celda `S` del fuente (*stand*) se pinta `Q`, y la celda `P` (*split*) se
+pinta `S`.
 
 70 tests cubren esta tabla casilla por casilla: los casos frontera de la tabla de
 referencia (A,7 contra 2 según H17; 8,8 contra A; 9,9 contra 7-10-A; las parejas que
