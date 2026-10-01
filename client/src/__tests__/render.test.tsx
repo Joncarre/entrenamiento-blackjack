@@ -114,6 +114,24 @@ describe('cada vista se renderiza sin errores', () => {
     useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
   });
 
+  it('da color distinto a los dos tipos de doble', async () => {
+    await mount(<ChartView />);
+
+    const dp = [...document.querySelectorAll('.chart__cell')].filter((el) => el.textContent === 'Dp');
+    const dq = [...document.querySelectorAll('.chart__cell')].filter((el) => el.textContent === 'Dq');
+    expect(dp.length).toBeGreaterThan(0);
+
+    // Comparten la letra D, asi que no pueden compartir tambien la familia de color.
+    for (const el of dp) expect(el.classList.contains('is-double-hit')).toBe(true);
+    for (const el of dq) expect(el.classList.contains('is-double-stand')).toBe(true);
+
+    // Y ninguna celda conserva la clase generica antigua, que las igualaba.
+    const generic = [...document.querySelectorAll('.chart__cell')].filter((el) =>
+      el.classList.contains('is-double'),
+    );
+    expect(generic).toHaveLength(0);
+  });
+
   it('no fusiona un tramo cuando las reglas separan alguna fila', async () => {
     // Con H17 y rendicion, 17 duro se rinde contra As: deja de ser igual a 18-20.
     useGame.setState({

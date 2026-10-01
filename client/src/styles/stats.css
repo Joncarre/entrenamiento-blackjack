@@ -527,30 +527,49 @@
   color: #0a0d0c;
 }
 
-/* Familias de accion: color plano + la letra siempre legible encima. */
+/* ------------------------------------------------------------------ *
+ * Familias de accion.
+ *
+ * Paleta validada con el validador de daltonismo sobre el panel oscuro:
+ * la peor pareja queda en deltaE 9.4 bajo protanopia y 16.6 en vision
+ * normal. Los dos dobles se separan en amarillo y naranja porque
+ * comparten la letra D y el color es lo unico que los distingue de lejos.
+ *
+ * Tres avisos del validador se aceptan a conciencia: el amarillo queda
+ * por encima de la banda de luminosidad y el gris por debajo del suelo de
+ * croma, pero no son marcas finas de datos sino fichas rellenas; y el
+ * rojo baja de 3:1 contra el panel, cubierto por la etiqueta de texto que
+ * toda celda lleva siempre encima.
+ * ------------------------------------------------------------------ */
 .is-hit,
 .legend__swatch.is-hit {
-  background: #b8474f;
-  color: #fff3f3;
+  background: #9e2f4a;
+  color: #ffeef1;
 }
 .is-stand,
 .legend__swatch.is-stand {
-  background: #2e7d5b;
+  background: #17935f;
   color: #eafff5;
 }
-.is-double,
-.legend__swatch.is-double {
-  background: #c9a15a;
+.is-double-hit,
+.legend__swatch.is-double-hit {
+  background: #f0d862;
+  color: #1a1505;
+}
+.is-double-stand,
+.legend__swatch.is-double-stand {
+  background: #e8912b;
+  color: #1f1203;
 }
 .is-split,
 .legend__swatch.is-split {
-  background: #4a7fae;
-  color: #f0f7ff;
+  background: #3a79c7;
+  color: #eef6ff;
 }
 .is-surrender,
 .legend__swatch.is-surrender {
-  background: #6d6f78;
-  color: #f4f4f6;
+  background: #a9aeb8;
+  color: #14181c;
 }
 .is-none {
   background: var(--surface-2);

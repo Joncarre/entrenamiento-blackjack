@@ -42,11 +42,17 @@ const CELL_HELP: Record<Cell, string> = {
 
 const LEGEND: Cell[] = ['H', 'S', 'Dh', 'Ds', 'P', 'Ph', 'Rh', 'Rs', 'Rp'];
 
-/** Agrupa las celdas por familia de color. */
+/**
+ * Familia de color de cada celda.
+ *
+ * Los dos dobles van separados a proposito: comparten la D, asi que si
+ * compartieran tambien el color no habria forma de distinguirlos de un vistazo.
+ */
 function family(cell: Cell): string {
   if (cell === 'H') return 'hit';
   if (cell === 'S') return 'stand';
-  if (cell === 'Dh' || cell === 'Ds') return 'double';
+  if (cell === 'Dh') return 'double-hit';
+  if (cell === 'Ds') return 'double-stand';
   if (cell === 'P' || cell === 'Ph') return 'split';
   if (cell === 'Rh' || cell === 'Rs' || cell === 'Rp') return 'surrender';
   return 'none';
