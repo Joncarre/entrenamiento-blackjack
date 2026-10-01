@@ -147,6 +147,22 @@ describe('cada vista se renderiza sin errores', () => {
     expect(generic).toHaveLength(0);
   });
 
+  it('da color distinto a los dos tipos de division', async () => {
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+    await mount(<ChartView />);
+
+    const cells = [...document.querySelectorAll('.chart__cell')];
+    const v = cells.filter((el) => el.textContent === 'V');
+    const vp = cells.filter((el) => el.textContent === 'Vp');
+    expect(v.length).toBeGreaterThan(0);
+    expect(vp.length).toBeGreaterThan(0);
+
+    for (const el of v) expect(el.classList.contains('is-split')).toBe(true);
+    for (const el of vp) expect(el.classList.contains('is-split-hit')).toBe(true);
+    // La division condicionada no debe quedarse con el azul de la incondicional.
+    for (const el of vp) expect(el.classList.contains('is-split')).toBe(false);
+  });
+
   it('no fusiona un tramo cuando las reglas separan alguna fila', async () => {
     // Con H17 y rendicion, 17 duro se rinde contra As: deja de ser igual a 18-20.
     useGame.setState({

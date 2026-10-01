@@ -566,9 +566,21 @@
   background: #3a79c7;
   color: #eef6ff;
 }
+.is-split-hit,
+.legend__swatch.is-split-hit {
+  background: #74b4ee;
+  color: #09131d;
+}
+/* La rendicion lleva ademas un rayado: es lo unico que queda cerca del azul
+   claro en luminosidad, y la trama la separa sin depender del color. */
 .is-surrender,
 .legend__swatch.is-surrender {
   background: #a9aeb8;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    rgba(20, 24, 28, 0.16) 0 2px,
+    transparent 2px 6px
+  );
   color: #14181c;
 }
 .is-none {

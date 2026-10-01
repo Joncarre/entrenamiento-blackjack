@@ -53,7 +53,8 @@ function family(cell: Cell): string {
   if (cell === 'S') return 'stand';
   if (cell === 'Dh') return 'double-hit';
   if (cell === 'Ds') return 'double-stand';
-  if (cell === 'P' || cell === 'Ph') return 'split';
+  if (cell === 'P') return 'split';
+  if (cell === 'Ph') return 'split-hit';
   if (cell === 'Rh' || cell === 'Rs' || cell === 'Rp') return 'surrender';
   return 'none';
 }
