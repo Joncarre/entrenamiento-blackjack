@@ -42,6 +42,53 @@ const pairLabel = (v: number) => (v === 11 ? 'A,A' : v === 10 ? '10,10' : `${v},
 
 type Section = 'hard' | 'soft' | 'pairs';
 
+interface ChartRow {
+  /** Etiqueta visible: un total suelto o un rango fusionado. */
+  label: string;
+  /** Totales que representa la fila. Varios si esta fusionada. */
+  totals: number[];
+  cells: Cell[];
+}
+
+/**
+ * Tramos de totales duros candidatos a fusionarse. Los extremos se juegan
+ * siempre igual, asi que ocupar cuatro filas para repetir la misma jugada
+ * solo estorba al memorizarla.
+ */
+const HARD_GROUPS: number[][] = [[5, 6, 7, 8], [9], [10], [11], [12], [13], [14], [15], [16], [17, 18, 19, 20]];
+
+/**
+ * Fusiona un tramo solo si la jugada es identica en todas sus filas. Con H17 y
+ * rendicion, por ejemplo, el 17 se rinde contra As y se separa del 18-20 solo.
+ */
+function buildHardRows(hard: Record<number, Cell[]>): ChartRow[] {
+  const out: ChartRow[] = [];
+
+  for (const group of HARD_GROUPS) {
+    let run: number[] = [];
+
+    const flush = () => {
+      if (run.length === 0) return;
+      out.push({
+        label: run.length > 1 ? `${run[0]}-${run[run.length - 1]}` : String(run[0]),
+        totals: run,
+        cells: hard[run[0]],
+      });
+      run = [];
+    };
+
+    for (const total of group) {
+      if (!hard[total]) continue;
+      // Al primer total que se juegue distinto se cierra el tramo abierto, de
+      // modo que un grupo parcialmente distinto se parte en vez de deshacerse.
+      if (run.length > 0 && hard[total].join() !== hard[run[0]].join()) flush();
+      run.push(total);
+    }
+    flush();
+  }
+  return out;
+}
+
 export function ChartView() {
   const rules = useGame((s) => s.settings.rules);
   const [heat, setHeat] = useState(false);
@@ -56,16 +103,12 @@ export function ChartView() {
     });
   }, [heat]);
 
-  const sections: Array<{ id: Section; title: string; note: string; rows: Array<[string, string, Cell[]]> }> = [
+  const sections: Array<{ id: Section; title: string; note: string; rows: ChartRow[] }> = [
     {
       id: 'hard',
       title: 'Totales duros',
-      note: 'Manos sin As, o con el As contando como 1.',
-      // Se listan todas las filas jugables para que el mapa de calor case
-      // exactamente con las claves que registra la partida.
-      rows: Object.entries(tables.hard)
-        .filter(([k]) => Number(k) >= 5 && Number(k) <= 20)
-        .map(([k, cells]) => [k, k, cells] as [string, string, Cell[]]),
+      note: 'Manos sin As, o con el As contando como 1. Los tramos que se juegan igual van en una sola fila.',
+      rows: buildHardRows(tables.hard),
     },
     {
       id: 'soft',
@@ -73,7 +116,7 @@ export function ChartView() {
       note: 'Con un As que todavia puede valer 11.',
       rows: Object.entries(tables.soft)
         .filter(([k]) => Number(k) <= 20)
-        .map(([k, cells]) => [k, softLabel(Number(k)), cells] as [string, string, Cell[]]),
+        .map(([k, cells]) => ({ label: softLabel(Number(k)), totals: [Number(k)], cells })),
     },
     {
       id: 'pairs',
@@ -81,16 +124,31 @@ export function ChartView() {
       note: 'Se consultan antes que el total. Un punto significa "no dividir": juega el total.',
       rows: Object.entries(tables.pairs)
         .sort((a, b) => Number(b[0]) - Number(a[0]))
-        .map(([k, cells]) => [k, pairLabel(Number(k)), cells] as [string, string, Cell[]]),
+        .map(([k, cells]) => ({ label: pairLabel(Number(k)), totals: [Number(k)], cells })),
     },
   ];
 
-  const usedCells = new Set<Cell>(sections.flatMap((s) => s.rows.flatMap(([, , cells]) => cells)));
+  const usedCells = new Set<Cell>(sections.flatMap((s) => s.rows.flatMap((r) => r.cells)));
 
-  const keyFor = (section: Section, rowKey: string, dealer: number) => {
+  const keyFor = (section: Section, total: number, dealer: number) => {
     const d = dealer === 11 ? 'A' : String(dealer);
     const prefix = section === 'hard' ? 'H' : section === 'soft' ? 'S' : 'P';
-    return `${prefix}${rowKey}v${d}`;
+    return `${prefix}${total}v${d}`;
+  };
+
+  /** Suma los aciertos de todos los totales que agrupa una fila fusionada. */
+  const heatFor = (section: Section, row: ChartRow, dealer: number) => {
+    if (!heat) return undefined;
+    let total = 0;
+    let correct = 0;
+    for (const t of row.totals) {
+      const stat = stats.get(keyFor(section, t, dealer));
+      if (stat) {
+        total += stat.total;
+        correct += stat.correct;
+      }
+    }
+    return total > 0 ? { total, correct, accuracy: correct / total } : undefined;
   };
 
   return (
@@ -152,12 +210,12 @@ export function ChartView() {
                 </tr>
               </thead>
               <tbody>
-                {section.rows.map(([rowKey, label, cells]) => (
-                  <tr key={rowKey}>
-                    <th className="chart__rowhead num">{label}</th>
-                    {cells.map((cell, i) => {
+                {section.rows.map((row) => (
+                  <tr key={row.label}>
+                    <th className="chart__rowhead num">{row.label}</th>
+                    {row.cells.map((cell, i) => {
                       const dealer = DEALER_COLUMNS[i];
-                      const stat = heat ? stats.get(keyFor(section.id, rowKey, dealer)) : undefined;
+                      const stat = heatFor(section.id, row, dealer);
                       const acc = stat ? stat.accuracy : undefined;
                       const tone =
                         acc === undefined ? '' : acc >= 0.9 ? ' heat-good' : acc >= 0.6 ? ' heat-mid' : ' heat-bad';

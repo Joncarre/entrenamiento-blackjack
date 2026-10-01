@@ -2,7 +2,7 @@
 import { act, cleanup, render, screen } from '@testing-library/react';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import App from '../App';
-import { CASINO_RULES, type Card, type Rank } from '../engine/types';
+import { CASINO_RULES, LIBERAL_RULES, type Card, type Rank } from '../engine/types';
 import { DEFAULT_SETTINGS } from '../store/settings';
 import { useGame } from '../store/useGame';
 import { ChartView } from '../views/ChartView';
@@ -75,11 +75,44 @@ describe('cada vista se renderiza sin errores', () => {
     expect(screen.getByText('Parejas')).toBeTruthy();
 
     const rows = document.querySelectorAll('.chart tbody tr');
-    // 16 duros + 8 blandos + 10 parejas.
-    expect(rows).toHaveLength(34);
+    // 10 duros (5-8 y 17-20 fusionados) + 8 blandos + 10 parejas.
+    expect(rows).toHaveLength(28);
     for (const row of rows) {
       expect(row.querySelectorAll('.chart__cell')).toHaveLength(10);
     }
+  });
+
+  it('fusiona los tramos de duros que se juegan igual', async () => {
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+    await mount(<ChartView />);
+
+    const heads = [...document.querySelectorAll('.chart__rowhead')].map((el) => el.textContent);
+    expect(heads).toContain('5-8');
+    expect(heads).toContain('17-20');
+    // Los totales con decision propia siguen teniendo su fila.
+    for (const t of ['9', '10', '11', '12', '16']) expect(heads).toContain(t);
+    // Y ya no aparecen sueltos los que se han fusionado.
+    for (const t of ['5', '6', '7', '8', '18', '19', '20']) expect(heads).not.toContain(t);
+  });
+
+  it('no fusiona un tramo cuando las reglas separan alguna fila', async () => {
+    // Con H17 y rendicion, 17 duro se rinde contra As: deja de ser igual a 18-20.
+    useGame.setState({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        rules: { ...LIBERAL_RULES, dealerHitsSoft17: true, lateSurrender: true },
+      },
+    });
+    await mount(<ChartView />);
+
+    const heads = [...document.querySelectorAll('.chart__rowhead')].map((el) => el.textContent);
+    expect(heads).toContain('17');
+    expect(heads).toContain('18-20');
+    expect(heads).not.toContain('17-20');
+    // El tramo bajo no depende de esas reglas y sigue fusionado.
+    expect(heads).toContain('5-8');
+
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
   });
 
   it('el drill propone una situacion jugable con sus acciones', async () => {
