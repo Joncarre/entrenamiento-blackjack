@@ -143,8 +143,9 @@ export function ChartView() {
       id: 'pairs',
       title: 'Parejas',
       note: 'Se consultan antes que el total. Un punto significa "no dividir": juega el total.',
+      // Ascendente, igual que duros y blandos: 2,2 arriba y A,A al final.
       rows: Object.entries(tables.pairs)
-        .sort((a, b) => Number(b[0]) - Number(a[0]))
+        .sort((a, b) => Number(a[0]) - Number(b[0]))
         .map(([k, cells]) => ({ label: pairLabel(Number(k)), totals: [Number(k)], cells })),
     },
   ];

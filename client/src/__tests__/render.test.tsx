@@ -82,6 +82,21 @@ describe('cada vista se renderiza sin errores', () => {
     }
   });
 
+  it('ordena las tres tablas de menor a mayor', async () => {
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+    await mount(<ChartView />);
+
+    const bodies = [...document.querySelectorAll('.chart tbody')];
+    const headsOf = (i: number) =>
+      [...bodies[i].querySelectorAll('.chart__rowhead')].map((el) => el.textContent);
+
+    expect(headsOf(0)).toEqual(['5-8', '9', '10', '11', '12', '13', '14', '15', '16', '17-20']);
+    expect(headsOf(1)).toEqual(['A,2', 'A,3', 'A,4', 'A,5', 'A,6', 'A,7', 'A,8', 'A,9']);
+    expect(headsOf(2)).toEqual([
+      '2,2', '3,3', '4,4', '5,5', '6,6', '7,7', '8,8', '9,9', '10,10', 'A,A',
+    ]);
+  });
+
   it('fusiona los tramos de duros que se juegan igual', async () => {
     useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
     await mount(<ChartView />);
