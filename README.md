@@ -165,6 +165,12 @@ Códigos de celda:
 
 El orden de evaluación importa y es: **rendición → división → doblar → pedir/plantarse**.
 
+En pantalla las casillas se etiquetan en castellano con el patrón **mayúscula =
+jugada que quieres hacer, minúscula = a lo que recurres si no puedes**: `Rp` es
+«rendirse; si no se puede, pedir», `Dq` es «doblar; si no se puede, plantarse». Así la
+casilla se lee sola, sin notas al pie. No confundir con los códigos internos de la
+tabla, que están en inglés: el `Rh` del fuente se muestra como `Rp`.
+
 70 tests cubren esta tabla casilla por casilla: los casos frontera de la tabla de
 referencia (A,7 contra 2 según H17; 8,8 contra A; 9,9 contra 7-10-A; las parejas que
 dependen del DAS) y un bloque específico que fija el comportamiento con las reglas del

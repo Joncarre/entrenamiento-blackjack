@@ -3,29 +3,44 @@ import { api, type SituationStat } from '../lib/api';
 import { useGame } from '../store/useGame';
 import { type Cell, DEALER_COLUMNS, resolvedTables } from '../strategy';
 
-/** Etiqueta corta que se pinta dentro de cada celda. */
+/**
+ * Etiqueta que se pinta dentro de cada celda.
+ *
+ * Mayuscula = jugada que quieres hacer. Minuscula = a que recurres si la mesa
+ * o la mano no te dejan hacerla. Asi "Rp" se lee "rendirse; si no se puede,
+ * pedir", sin tener que recordar ninguna nota al pie.
+ *
+ * Ojo: la minuscula de la etiqueta no sigue el codigo interno de la tabla,
+ * que esta en ingles. El 'Rh' del fuente se muestra aqui como "Rp".
+ */
 const CELL_TEXT: Record<Cell, string> = {
   H: 'P',
   S: 'Q',
-  Dh: 'D',
-  Ds: 'D',
+  Dh: 'Dp',
+  Ds: 'Dq',
   P: 'V',
-  Ph: 'V*',
+  Ph: 'Vp',
   N: '·',
-  Rh: 'R',
-  Rs: 'R',
-  Rp: 'R',
+  Rh: 'Rp',
+  Rs: 'Rq',
+  Rp: 'Rv',
 };
 
-const LEGEND: Array<{ cell: Cell; text: string }> = [
-  { cell: 'H', text: 'Pedir' },
-  { cell: 'S', text: 'Plantarse' },
-  { cell: 'Dh', text: 'Doblar (si no, pedir)' },
-  { cell: 'Ds', text: 'Doblar (si no, plantarse)' },
-  { cell: 'P', text: 'Dividir' },
-  { cell: 'Ph', text: 'Dividir solo con DAS' },
-  { cell: 'Rh', text: 'Rendirse' },
-];
+/** Texto largo de cada codigo. Alimenta la leyenda y el tooltip de la celda. */
+const CELL_HELP: Record<Cell, string> = {
+  H: 'Pedir',
+  S: 'Plantarse',
+  Dh: 'Doblar; si no se puede, pedir',
+  Ds: 'Doblar; si no se puede, plantarse',
+  P: 'Dividir',
+  Ph: 'Dividir si se puede doblar despues; si no, pedir',
+  N: 'No dividir: juega el total',
+  Rh: 'Rendirse; si no se puede, pedir',
+  Rs: 'Rendirse; si no se puede, plantarse',
+  Rp: 'Rendirse; si no se puede, dividir',
+};
+
+const LEGEND: Cell[] = ['H', 'S', 'Dh', 'Ds', 'P', 'Ph', 'Rh', 'Rs', 'Rp'];
 
 /** Agrupa las celdas por familia de color. */
 function family(cell: Cell): string {
@@ -179,10 +194,10 @@ export function ChartView() {
 
       {/* Solo se explican los codigos que de verdad aparecen en esta mesa. */}
       <div className="legend">
-        {LEGEND.filter(({ cell }) => usedCells.has(cell)).map(({ cell, text }) => (
+        {LEGEND.filter((cell) => usedCells.has(cell)).map((cell) => (
           <span key={cell} className="legend__item">
             <span className={`legend__swatch is-${family(cell)}`}>{CELL_TEXT[cell]}</span>
-            {text}
+            {CELL_HELP[cell]}
           </span>
         ))}
       </div>
@@ -223,7 +238,11 @@ export function ChartView() {
                         <td
                           key={dealer}
                           className={`chart__cell is-${family(cell)}${tone}`}
-                          title={stat ? `${stat.correct}/${stat.total} aciertos` : undefined}
+                          title={
+                            stat
+                              ? `${CELL_HELP[cell]} · ${stat.correct}/${stat.total} aciertos`
+                              : CELL_HELP[cell]
+                          }
                         >
                           {CELL_TEXT[cell]}
                         </td>

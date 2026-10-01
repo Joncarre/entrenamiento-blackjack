@@ -95,6 +95,25 @@ describe('cada vista se renderiza sin errores', () => {
     for (const t of ['5', '6', '7', '8', '18', '19', '20']) expect(heads).not.toContain(t);
   });
 
+  it('etiqueta cada casilla con su jugada y su alternativa', async () => {
+    // Con rendicion disponible, 16 contra 10 se rinde o, si no se puede, pide.
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: LIBERAL_RULES } });
+    await mount(<ChartView />);
+
+    const cells = [...document.querySelectorAll('.chart__cell')].map((el) => el.textContent);
+    expect(cells).toContain('Rp'); // rendirse, si no pedir
+    expect(cells).toContain('Dp'); // doblar, si no pedir
+    expect(cells).toContain('Dq'); // doblar, si no plantarse
+    // Ya no queda ninguna 'R' suelta sin indicar la alternativa.
+    expect(cells).not.toContain('R');
+    expect(cells).not.toContain('D');
+
+    const legend = [...document.querySelectorAll('.legend__item')].map((el) => el.textContent);
+    expect(legend.some((t) => t?.includes('Rendirse; si no se puede, pedir'))).toBe(true);
+
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+  });
+
   it('no fusiona un tramo cuando las reglas separan alguna fila', async () => {
     // Con H17 y rendicion, 17 duro se rinde contra As: deja de ser igual a 18-20.
     useGame.setState({
