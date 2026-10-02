@@ -196,7 +196,7 @@ export function DrillView() {
   );
 
   useEffect(() => {
-    const keys: Record<string, HandAction> = { p: 'hit', s: 'stand', d: 'double', v: 'split', r: 'surrender' };
+    const keys: Record<string, HandAction> = { p: 'hit', q: 'stand', d: 'double', s: 'split', r: 'surrender' };
     const onKey = (e: KeyboardEvent) => {
       const target = e.target as HTMLElement | null;
       if (target && /input|select|textarea/i.test(target.tagName)) return;
@@ -275,7 +275,7 @@ export function DrillView() {
             >
               <span className="abtn__label">{actionLabel(action)}</span>
               <kbd className="abtn__key">
-                {{ hit: 'P', stand: 'S', double: 'D', split: 'V', surrender: 'R' }[action]}
+                {{ hit: 'P', stand: 'Q', double: 'D', split: 'S', surrender: 'R' }[action]}
               </kbd>
             </button>
           );

@@ -25,12 +25,13 @@ export interface StrategyAdvice {
   reason: string;
 }
 
+/** Mismas palabras que la leyenda de la tabla, para no entrenar dos nombres. */
 const ACTION_LABEL: Record<Action, string> = {
   hit: 'Pedir',
-  stand: 'Plantarse',
+  stand: 'Quedarse',
   double: 'Doblar',
-  split: 'Dividir',
-  surrender: 'Rendirse',
+  split: 'Separar',
+  surrender: 'Retirarse',
   insurance: 'Seguro',
 };
 

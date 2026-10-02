@@ -54,21 +54,37 @@
   cursor: not-allowed;
 }
 
+/* El color sale de los mismos tokens que pintan la tabla: un punto grueso
+   con el color de la jugada y el borde a juego. Pedir era verde aqui y rojo
+   en la tabla, que es justo la asociacion contraria a la que hay que fijar. */
+.abtn::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--act, var(--text-faint));
+  flex: 0 0 auto;
+}
+
 .abtn--hit {
-  border-color: rgba(58, 214, 147, 0.3);
+  --act: var(--act-hit);
+  border-color: color-mix(in srgb, var(--act-hit) 55%, transparent);
 }
 .abtn--stand {
-  border-color: rgba(242, 85, 95, 0.28);
+  --act: var(--act-stand);
+  border-color: color-mix(in srgb, var(--act-stand) 55%, transparent);
 }
 .abtn--double {
-  border-color: rgba(227, 196, 141, 0.3);
+  --act: var(--act-double);
+  border-color: color-mix(in srgb, var(--act-double) 45%, transparent);
 }
 .abtn--split {
-  border-color: rgba(94, 185, 240, 0.28);
+  --act: var(--act-split);
+  border-color: color-mix(in srgb, var(--act-split) 55%, transparent);
 }
 .abtn--surrender {
-  border-color: var(--border);
-  color: var(--text-dim);
+  --act: var(--act-surrender);
+  border-color: color-mix(in srgb, var(--act-surrender) 45%, transparent);
 }
 
 /* Modo aprendizaje: la jugada de la tabla se marca antes de decidir. */

@@ -10,11 +10,12 @@ interface ActionDef {
   codes: string[];
 }
 
+/** La tecla es la inicial de la jugada y coincide con su simbolo en la tabla. */
 const ACTIONS: ActionDef[] = [
   { action: 'hit', key: 'P', codes: ['p', 'arrowup'] },
-  { action: 'stand', key: 'S', codes: ['s', 'arrowdown'] },
+  { action: 'stand', key: 'Q', codes: ['q', 'arrowdown'] },
   { action: 'double', key: 'D', codes: ['d'] },
-  { action: 'split', key: 'V', codes: ['v'] },
+  { action: 'split', key: 'S', codes: ['s'] },
   { action: 'surrender', key: 'R', codes: ['r'] },
 ];
 

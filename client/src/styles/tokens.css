@@ -28,6 +28,21 @@
   --amber: #f5b544;
   --sky: #5eb9f0;
 
+  /* ------------------------------------------------------------------ *
+   * Colores de las jugadas. Unica fuente para la mesa, el drill y la
+   * tabla: si la mesa y la tabla pintaran la misma jugada de distinto
+   * color, entrenarian asociaciones contrarias.
+   *
+   * Paleta validada contra el panel oscuro (ver stats.css).
+   * ------------------------------------------------------------------ */
+  --act-hit: #9e2f4a;
+  --act-stand: #17935f;
+  --act-double: #f0d862;
+  --act-double-stand: #e8912b;
+  --act-split: #3a79c7;
+  --act-split-hit: #74b4ee;
+  --act-surrender: #c97ad6;
+
   /* Fieltro de la mesa. */
   --felt-1: #10463a;
   --felt-2: #0a2c25;

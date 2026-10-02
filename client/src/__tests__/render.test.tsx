@@ -1,5 +1,8 @@
 // @vitest-environment jsdom
 import { act, cleanup, render, screen } from '@testing-library/react';
+import { readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { afterEach, beforeAll, describe, expect, it, vi } from 'vitest';
 import App from '../App';
 import { CASINO_RULES, LIBERAL_RULES, type Card, type Rank } from '../engine/types';
@@ -35,6 +38,8 @@ beforeAll(() => {
   // El backend no esta levantado en los tests: la app tiene que aguantarlo.
   vi.stubGlobal('fetch', vi.fn(() => Promise.reject(new Error('sin servidor'))));
 });
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
 
 afterEach(cleanup);
 
@@ -233,9 +238,9 @@ describe('la mesa reacciona al juego', () => {
     // Dos cartas del jugador y dos del crupier.
     expect(document.querySelectorAll('.pcard')).toHaveLength(4);
     expect(screen.getByText('Pedir')).toBeTruthy();
-    expect(screen.getByText('Plantarse')).toBeTruthy();
+    expect(screen.getByText('Quedarse')).toBeTruthy();
     // La mesa de referencia no ofrece rendicion: el boton queda desactivado.
-    expect(screen.getByText('Rendirse').closest('button')?.disabled).toBe(true);
+    expect(screen.getByText('Retirarse').closest('button')?.disabled).toBe(true);
     // 16 duro tampoco se puede doblar: solo se dobla con 9, 10 u 11.
     expect(screen.getByText('Doblar').closest('button')?.disabled).toBe(true);
   });
@@ -293,5 +298,43 @@ describe('codigos de retirada', () => {
     for (const el of rq) expect(el.classList.contains('is-surrender')).toBe(true);
 
     useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+  });
+});
+
+describe('coherencia entre la mesa y la tabla', () => {
+  it('usa las mismas palabras para cada jugada en los dos sitios', async () => {
+    // Con rendicion disponible la leyenda muestra los cinco codigos.
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: LIBERAL_RULES } });
+    await mount(<ChartView />);
+    const legend = [...document.querySelectorAll('.legend__item')].map((el) => el.textContent ?? '');
+    cleanup();
+
+    await mount(<DrillView />);
+    const buttons = [...document.querySelectorAll('.abtn .abtn__label')].map((el) => el.textContent);
+
+    // Lo que dice el boton tiene que aparecer tal cual en la leyenda.
+    for (const word of ['Pedir', 'Quedarse', 'Doblar', 'Separar', 'Retirarse']) {
+      expect(buttons, `boton ${word}`).toContain(word);
+      expect(
+        legend.some((t) => t.includes(word)),
+        `leyenda ${word}`,
+      ).toBe(true);
+    }
+
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+  });
+
+  it('pinta cada jugada del mismo color en los dos sitios', () => {
+    // Botones y casillas beben del mismo token, asi que basta comprobar que
+    // ningun boton se quedo con un color propio escrito a mano.
+    const css = readFileSync(join(__dirname, '..', 'styles', 'controls.css'), 'utf8');
+
+    for (const token of ['--act-hit', '--act-stand', '--act-double', '--act-split', '--act-surrender']) {
+      expect(css, token).toContain(`var(${token})`);
+    }
+
+    const actionBlock = css.slice(css.indexOf('.abtn--hit'), css.indexOf('.abtn.is-suggested'));
+    expect(actionBlock).not.toMatch(/#[0-9a-f]{3,8}\b/i);
+    expect(actionBlock).not.toMatch(/rgba?\(\s*\d/);
   });
 });

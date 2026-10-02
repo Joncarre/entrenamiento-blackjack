@@ -125,14 +125,20 @@ También hay un contador **Hi-Lo** opcional (corriente y real) para entrenamient
 
 ### Atajos de teclado
 
+La tecla es la inicial de la jugada, y la misma letra que su símbolo en la tabla.
+
 | Tecla | Acción |
 |---|---|
 | `P` | Pedir |
-| `S` | Plantarse |
+| `Q` | Quedarse |
 | `D` | Doblar |
-| `V` | Dividir |
-| `R` | Rendirse |
+| `S` | Separar |
+| `R` | Retirarse |
 | `Espacio` | Repartir / Siguiente mano |
+
+Las jugadas se llaman igual y se pintan del mismo color en la mesa, en el drill y en la
+tabla: los colores salen de un único juego de tokens (`--act-*`), de modo que la mesa no
+puede acabar enseñando una asociación y la tabla la contraria.
 
 ---
 

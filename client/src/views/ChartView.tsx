@@ -31,10 +31,10 @@ const CELL_TEXT: Record<Cell, string> = {
 /** Texto largo de cada codigo. Alimenta la leyenda y el tooltip de la celda. */
 const CELL_HELP: Record<Cell, string> = {
   H: 'Pedir',
-  S: 'Quedarse (plantarse)',
+  S: 'Quedarse',
   Dh: 'Doblar; si no se puede, pedir',
   Ds: 'Doblar; si no se puede, quedarse',
-  P: 'Separar la pareja (dividir)',
+  P: 'Separar la pareja',
   Ph: 'Separar para poder Doblar despues; si no se puede, pedir',
   N: 'No separar: juega el total',
   Rh: 'Retirarse; si no se puede, pedir',
