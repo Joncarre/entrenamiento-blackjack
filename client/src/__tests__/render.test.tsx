@@ -338,3 +338,20 @@ describe('coherencia entre la mesa y la tabla', () => {
     expect(actionBlock).not.toMatch(/rgba?\(\s*\d/);
   });
 });
+
+describe('disposicion del drill', () => {
+  it('pone al crupier a la izquierda y la mano propia a la derecha', async () => {
+    await mount(<DrillView />);
+
+    const board = document.querySelector('.drill__board');
+    expect(board).toBeTruthy();
+    const captions = [...board!.querySelectorAll('.drill__caption')].map((el) => el.textContent);
+    expect(captions).toEqual(['Crupier', 'Tu mano']);
+
+    // El orden del DOM manda: la rejilla no invierte columnas en ningun sitio.
+    const sides = [...board!.children];
+    expect(sides).toHaveLength(2);
+    expect(sides[0].textContent).toContain('Crupier');
+    expect(sides[1].textContent).toContain('Tu mano');
+  });
+});
