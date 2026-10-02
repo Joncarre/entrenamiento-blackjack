@@ -129,9 +129,18 @@ describe('estrategia basica: totales blandos', () => {
     expect(advice(['A', '7'], '9')).toBe('hit');
     expect(advice(['A', '7'], 'A')).toBe('hit');
   });
-  it('A,8 se planta salvo contra 6 en H17', () => {
-    expect(advice(['A', '8'], '6', S17)).toBe('stand');
+  it('A,8 solo dobla contra 6', () => {
+    expect(advice(['A', '8'], '6', S17)).toBe('double');
     expect(advice(['A', '8'], '6', H17)).toBe('double');
+    for (const d of ['2', '5', '7', 'T', 'A'] as Rank[]) {
+      expect(advice(['A', '8'], d)).toBe('stand');
+    }
+  });
+
+  it('A,9 se planta contra todo', () => {
+    for (const d of ['2', '5', '6', '9', 'A'] as Rank[]) {
+      expect(advice(['A', '9'], d)).toBe('stand');
+    }
   });
   it('si no se puede doblar, A,7 vs 3 se planta (Ds)', () => {
     expect(advice(['A', '7'], '3', S17, NO_EXTRAS)).toBe('stand');
@@ -318,13 +327,34 @@ describe('reglas del casino', () => {
       expect(cas(['6', '5'], '5')).toBe('double');
     });
 
-    it('elimina todos los dobles de manos blandas', () => {
-      // A,2 a A,6 pasan a pedir.
+    it('elimina los dobles de A,2 a A,7, cuyo total duro no llega a 9', () => {
       expect(cas(['A', '2'], '5')).toBe('hit');
       expect(cas(['A', '3'], '6')).toBe('hit');
       expect(cas(['A', '4'], '4')).toBe('hit');
       expect(cas(['A', '5'], '6')).toBe('hit');
       expect(cas(['A', '6'], '3')).toBe('hit');
+    });
+
+    it('conserva el doble de A,8, que vale 9 contando el As como 1', () => {
+      expect(cas(['A', '8'], '6')).toBe('double');
+      // Solo contra el 6: el resto de la fila se planta.
+      for (const d of ['2', '5', '7', 'T'] as Rank[]) expect(cas(['A', '8'], d)).toBe('stand');
+    });
+
+    it('permite doblar A,8 y A,9 pero no A,7', () => {
+      const legalFor = (cards: Rank[]) =>
+        legalActionsFor({
+          hand: newHand(10, cards.map(c)),
+          totalHands: 1,
+          rules: C,
+          available: 1000,
+          dealerHasBlackjack: false,
+        }).double;
+
+      expect(legalFor(['A', '8'])).toBe(true); // 9 o 19
+      expect(legalFor(['A', '9'])).toBe(true); // 10 o 20
+      expect(legalFor(['A', '7'])).toBe(false); // 8 o 18
+      expect(legalFor(['A', '2'])).toBe(false); // 3 o 13
     });
 
     it('A,7 contra 3-6 se planta en vez de doblar', () => {

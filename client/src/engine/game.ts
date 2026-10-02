@@ -65,7 +65,13 @@ export function legalActionsFor(ctx: LegalityContext) {
   }
 
   const canAffordExtra = available >= hand.bet;
-  const doubleTotalOk = rules.doubleAnyTotal || [9, 10, 11].includes(value.total);
+  // En una mesa que solo deja doblar con 9, 10 u 11, el As sigue valiendo 1 u 11
+  // "segun convenga al jugador": A,8 son 9 o 19 puntos, y por los 9 se puede
+  // doblar. Por eso se miran los dos totales, no solo el mejor.
+  const doubleTotalOk =
+    rules.doubleAnyTotal ||
+    [9, 10, 11].includes(value.total) ||
+    [9, 10, 11].includes(value.hard);
   const doubleSplitOk = !hand.fromSplit || rules.doubleAfterSplit;
 
   return {

@@ -64,7 +64,7 @@ export const SOFT: Record<number, Cell[]> = {
   16: row('     H   H   Dh  Dh  Dh  H   H   H   H   H '), // A,5
   17: row('     H   Dh  Dh  Dh  Dh  H   H   H   H   H '), // A,6
   18: row('     S   Ds  Ds  Ds  Ds  S   S   H   H   H '), // A,7
-  19: row('     S   S   S   S   S   S   S   S   S   S '), // A,8
+  19: row('     S   S   S   S   Ds  S   S   S   S   S '), // A,8
   20: row('     S   S   S   S   S   S   S   S   S   S '), // A,9
   21: row('     S   S   S   S   S   S   S   S   S   S '),
 };
@@ -97,7 +97,7 @@ export const H17_HARD_OVERRIDES: Array<[total: number, dealer: number, cell: Cel
 
 export const H17_SOFT_OVERRIDES: Array<[total: number, dealer: number, cell: Cell]> = [
   [18, 2, 'Ds'], // A,7 vs 2: doblar / plantarse
-  [19, 6, 'Ds'], // A,8 vs 6: doblar / plantarse
+  // A,8 vs 6 ya dobla en la tabla base, asi que no necesita desviacion aqui.
 ];
 
 export const H17_PAIR_OVERRIDES: Array<[pair: number, dealer: number, cell: Cell]> = [
@@ -166,9 +166,14 @@ export function resolvedTables(rules: TableRules) {
         hard[Number(t)] = mapRow(hard[Number(t)], dropDouble);
       }
     }
+    // En las blandas cuenta el total duro, porque el As puede valer 1: A,8 son
+    // 9 puntos ademas de 19, y por los 9 la mesa deja doblar. Solo conservan el
+    // doble A,8 y A,9; de A,2 a A,7 el total duro se queda en 8 o menos.
     for (const t of Object.keys(soft)) {
-      if (!RESTRICTED_DOUBLE_TOTALS.includes(Number(t))) {
-        soft[Number(t)] = mapRow(soft[Number(t)], dropDouble);
+      const total = Number(t);
+      const asHard = total - 10;
+      if (!RESTRICTED_DOUBLE_TOTALS.includes(total) && !RESTRICTED_DOUBLE_TOTALS.includes(asHard)) {
+        soft[total] = mapRow(soft[total], dropDouble);
       }
     }
   }
