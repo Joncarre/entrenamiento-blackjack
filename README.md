@@ -176,7 +176,7 @@ casilla se lee sola, sin notas al pie.
 | `Q` | Quedarse (plantarse) |
 | `S` | Separar la pareja (dividir) |
 | `Dp` / `Dq` | Doblar; si no, pedir / quedarse |
-| `Sp` | Separar si hay doble tras split; si no, pedir |
+| `SDp` | Separar para poder Doblar después; si no, pedir |
 | `Rp` / `Rq` / `Rs` | Retirarse; si no, pedir / quedarse / separar |
 
 No confundir con los códigos internos de la tabla, que están en inglés y se cruzan con

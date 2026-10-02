@@ -515,7 +515,7 @@
 
 .chart__cell {
   /* Dos caracteres ('Dp', 'Rq') tienen que caber sin apretarse. */
-  min-width: 38px;
+  min-width: 42px;
   height: 30px;
   padding: 0 3px;
   text-align: center;
@@ -571,17 +571,23 @@
   background: #74b4ee;
   color: #09131d;
 }
-/* La rendicion lleva ademas un rayado: es lo unico que queda cerca del azul
-   claro en luminosidad, y la trama la separa sin depender del color. */
+/* Las tres retiradas comparten morado. Rp va liso y las otras dos rayadas,
+   porque meter un octavo color empujaba a otra pareja por debajo del minimo:
+   la trama las separa entre si sin tocar el resto de la paleta. */
+.is-surrender-hit,
+.legend__swatch.is-surrender-hit {
+  background: #c97ad6;
+  color: #1a0c1d;
+}
 .is-surrender,
 .legend__swatch.is-surrender {
-  background: #a9aeb8;
+  background: #c97ad6;
   background-image: repeating-linear-gradient(
     -45deg,
-    rgba(20, 24, 28, 0.16) 0 2px,
+    rgba(26, 12, 29, 0.22) 0 2px,
     transparent 2px 6px
   );
-  color: #14181c;
+  color: #1a0c1d;
 }
 .is-none {
   background: var(--surface-2);

@@ -21,7 +21,7 @@ const CELL_TEXT: Record<Cell, string> = {
   Dh: 'Dp',
   Ds: 'Dq',
   P: 'S',
-  Ph: 'Sp',
+  Ph: 'SDp',
   N: '·',
   Rh: 'Rp',
   Rs: 'Rq',
@@ -35,7 +35,7 @@ const CELL_HELP: Record<Cell, string> = {
   Dh: 'Doblar; si no se puede, pedir',
   Ds: 'Doblar; si no se puede, quedarse',
   P: 'Separar la pareja (dividir)',
-  Ph: 'Separar si se puede doblar despues; si no, pedir',
+  Ph: 'Separar para poder Doblar despues; si no se puede, pedir',
   N: 'No separar: juega el total',
   Rh: 'Retirarse; si no se puede, pedir',
   Rs: 'Retirarse; si no se puede, quedarse',
@@ -57,7 +57,10 @@ function family(cell: Cell): string {
   if (cell === 'Ds') return 'double-stand';
   if (cell === 'P') return 'split';
   if (cell === 'Ph') return 'split-hit';
-  if (cell === 'Rh' || cell === 'Rs' || cell === 'Rp') return 'surrender';
+  // Las tres retiradas comparten el morado y se separan por trama: un octavo
+  // color ya no cabe sin empujar a otra pareja por debajo del minimo.
+  if (cell === 'Rh') return 'surrender-hit';
+  if (cell === 'Rs' || cell === 'Rp') return 'surrender';
   return 'none';
 }
 

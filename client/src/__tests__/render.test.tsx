@@ -125,6 +125,7 @@ describe('cada vista se renderiza sin errores', () => {
     // Y separar se marca con S, no con V.
     expect(cells).not.toContain('V');
     expect(cells).not.toContain('Vp');
+    expect(cells).not.toContain('Sp');
 
     const legend = [...document.querySelectorAll('.legend__item')].map((el) => el.textContent);
     expect(legend.some((t) => t?.includes('Retirarse; si no se puede, pedir'))).toBe(true);
@@ -156,7 +157,7 @@ describe('cada vista se renderiza sin errores', () => {
 
     const cells = [...document.querySelectorAll('.chart__cell')];
     const v = cells.filter((el) => el.textContent === 'S');
-    const vp = cells.filter((el) => el.textContent === 'Sp');
+    const vp = cells.filter((el) => el.textContent === 'SDp');
     expect(v.length).toBeGreaterThan(0);
     expect(vp.length).toBeGreaterThan(0);
 
@@ -260,5 +261,37 @@ describe('la mesa reacciona al juego', () => {
     expect(useGame.getState().phase).toBe('roundOver');
     expect(screen.getByText(/Ganas/)).toBeTruthy();
     expect(screen.getByText(/Siguiente mano/)).toBeTruthy();
+  });
+});
+
+describe('codigos de retirada', () => {
+  it('van en morado y se separan entre si por trama', async () => {
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: LIBERAL_RULES } });
+    await mount(<ChartView />);
+
+    const cells = [...document.querySelectorAll('.chart__cell')];
+    const rp = cells.filter((el) => el.textContent === 'Rp');
+    expect(rp.length).toBeGreaterThan(0);
+    for (const el of rp) expect(el.classList.contains('is-surrender-hit')).toBe(true);
+    // Rp va liso, asi que no debe llevar la clase rayada.
+    for (const el of rp) expect(el.classList.contains('is-surrender')).toBe(false);
+
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+  });
+
+  it('marca Rq con la variante rayada', async () => {
+    useGame.setState({
+      settings: {
+        ...DEFAULT_SETTINGS,
+        rules: { ...LIBERAL_RULES, dealerHitsSoft17: true },
+      },
+    });
+    await mount(<ChartView />);
+
+    const rq = [...document.querySelectorAll('.chart__cell')].filter((el) => el.textContent === 'Rq');
+    expect(rq.length).toBeGreaterThan(0);
+    for (const el of rq) expect(el.classList.contains('is-surrender')).toBe(true);
+
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
   });
 });
