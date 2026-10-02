@@ -549,7 +549,7 @@
 .is-stand,
 .legend__swatch.is-stand {
   background: #17935f;
-  color: #eafff5;
+  color: #04170d;
 }
 .is-double-hit,
 .legend__swatch.is-double-hit {
@@ -563,7 +563,7 @@
 }
 .is-split,
 .legend__swatch.is-split {
-  background: #3a79c7;
+  background: #2d66b0;
   color: #eef6ff;
 }
 .is-split-hit,
@@ -790,4 +790,76 @@
   color: var(--text-dim);
   font-size: 12px;
   line-height: 1.6;
+}
+
+/* ------------------------------------------------------------------ *
+ * Hoja clara de consulta
+ *
+ * La tabla se lee sobre fondo claro, como las de casino impresas. Los
+ * colores de las jugadas son los mismos que en la mesa (tokens --act-*),
+ * pero sobre blanco cuatro de ellos bajan de 3:1 contra el fondo: el
+ * amarillo se queda en 1.43. En vez de retocarlos, que romperia la
+ * correspondencia con los botones, cada casilla lleva un filete que la
+ * delimita. El texto de dentro conserva su contraste en ambos fondos.
+ * ------------------------------------------------------------------ */
+.sheet {
+  padding: 20px;
+  margin-bottom: 22px;
+  border-radius: var(--radius-lg);
+  background: #ffffff;
+  box-shadow: var(--shadow-lg);
+  /* Tinta propia: dentro de la hoja no valen los tokens de texto claro. */
+  --ink: #14181c;
+  --ink-dim: #5b6166;
+  color: var(--ink);
+}
+
+.sheet .legend,
+.sheet .chart-section__note,
+.sheet .chart-hint {
+  color: var(--ink-dim);
+}
+
+.sheet .chart-section__title,
+.sheet .chart__rowhead {
+  color: var(--ink) !important;
+}
+
+.sheet .chart th {
+  color: var(--ink-dim);
+}
+
+.sheet .chart-section:last-child {
+  margin-bottom: 0;
+}
+
+/* El filete sustituye al contraste del relleno contra el blanco. */
+.sheet .chart__cell {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+/* Con el mapa de calor activo manda el borde de color, como en oscuro. */
+.sheet .chart__cell.heat-good {
+  box-shadow: inset 0 0 0 2px #1d7f60;
+}
+.sheet .chart__cell.heat-mid {
+  box-shadow: inset 0 0 0 2px #a35e14;
+}
+.sheet .chart__cell.heat-bad {
+  box-shadow: inset 0 0 0 2px #b8323c;
+}
+
+.sheet .legend__swatch {
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.18);
+}
+
+.sheet .is-none {
+  background: #eceae5;
+  color: var(--ink-dim);
+}
+
+@media (max-width: 520px) {
+  .sheet {
+    padding: 14px 12px;
+  }
 }

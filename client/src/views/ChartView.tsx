@@ -205,24 +205,28 @@ export function ChartView() {
         </label>
       </header>
 
-      {/* Solo se explican los codigos que de verdad aparecen en esta mesa. */}
-      <div className="legend">
-        {LEGEND.filter((cell) => usedCells.has(cell)).map((cell) => (
-          <span key={cell} className="legend__item">
-            <span className={`legend__swatch is-${family(cell)}`}>{CELL_TEXT[cell]}</span>
-            {CELL_HELP[cell]}
-          </span>
-        ))}
-      </div>
+      {/* La consulta va sobre hoja clara: es como se leen las tablas impresas
+          y separa de un vistazo lo que hay que memorizar del resto de la app. */}
+      <div className="sheet">
+        {/* Solo se explican los codigos que de verdad aparecen en esta mesa. */}
+        <div className="legend">
+          {LEGEND.filter((cell) => usedCells.has(cell)).map((cell) => (
+            <span key={cell} className="legend__item">
+              <span className={`legend__swatch is-${family(cell)}`}>{CELL_TEXT[cell]}</span>
+              {CELL_HELP[cell]}
+            </span>
+          ))}
+        </div>
 
-      {heat && (
-        <p className="chart-hint">
-          El borde marca tu acierto en cada casilla: verde si la dominas, rojo si falla. Sin borde = sin datos todavia.
-        </p>
-      )}
+        {heat && (
+          <p className="chart-hint">
+            El borde marca tu acierto en cada casilla: verde si la dominas, rojo si falla. Sin borde = sin datos
+            todavia.
+          </p>
+        )}
 
-      {sections.map((section) => (
-        <section key={section.id} className="chart-section">
+        {sections.map((section) => (
+          <section key={section.id} className="chart-section">
           <h2 className="chart-section__title">{section.title}</h2>
           <p className="chart-section__note">{section.note}</p>
           <div className="chart-scroll">
@@ -266,8 +270,9 @@ export function ChartView() {
               </tbody>
             </table>
           </div>
-        </section>
-      ))}
+          </section>
+        ))}
+      </div>
 
       <section className="chart-section">
         <h2 className="chart-section__title">Reglas que no aparecen en la tabla</h2>
