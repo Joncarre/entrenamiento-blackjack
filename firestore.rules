@@ -27,10 +27,6 @@ service cloud.firestore {
 
     // --- utilidades ---------------------------------------------------
 
-    function isNum(v) {
-      return v is number;
-    }
-
     // Un incremento llega resuelto al validador, asi que solo se exige que
     // el resultado siga siendo un numero dentro de un rango sensato.
     function sane(v, lo, hi) {
