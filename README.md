@@ -266,8 +266,8 @@ El mapa de dominio de la tabla evita el par rojo/verde justamente por eso, y en 
 los casos el color acompaña a un número o una etiqueta: nunca es el único canal.
 
 **Pensada para el móvil.** Es donde se entrena de verdad, así que: alturas táctiles de
-44 px,  sólo en dispositivos con puntero (en táctil se queda pegado al tocar),
- para que la barra del navegador no mueva el layout, y respeto de las zonas
+44 px, `hover` sólo en dispositivos con puntero (en táctil se queda pegado al tocar),
+`100dvh` para que la barra del navegador no mueva el layout, y respeto de las zonas
 seguras del dispositivo. La tabla no cabe entera en una pantalla estrecha —necesita unos
 426 px y un iPhone SE deja 323 útiles— así que la columna de la mano queda fija al
 desplazar y los bordes se difuminan para indicar que hay más tabla a los lados.
