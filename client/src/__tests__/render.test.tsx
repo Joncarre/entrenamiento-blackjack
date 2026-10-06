@@ -209,9 +209,9 @@ describe('cada vista se renderiza sin errores', () => {
     expect(screen.getByText(/Apuesta base/)).toBeTruthy();
   });
 
-  it('el progreso avisa si no hay servidor en vez de romperse', async () => {
+  it('el progreso avisa si no hay base de datos en vez de romperse', async () => {
     await mount(<StatsView />);
-    expect(screen.getByText(/No hay conexion con el servidor/)).toBeTruthy();
+    expect(screen.getByText(/No hay conexion con la base de datos/)).toBeTruthy();
   });
 });
 

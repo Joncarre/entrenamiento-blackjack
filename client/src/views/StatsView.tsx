@@ -35,7 +35,7 @@ export function StatsView() {
   const [bankroll, setBankroll] = useState<BankrollPoint[]>([]);
   const [situations, setSituations] = useState<SituationStat[]>([]);
   const [mistakes, setMistakes] = useState<MistakeStat[]>([]);
-  const [bucket, setBucket] = useState(25);
+  const [bucket, setBucket] = useState(20);
   const [loading, setLoading] = useState(true);
   const [showTable, setShowTable] = useState(false);
   const bankrollStart = useGame((s) => s.settings.bankrollStart);
@@ -83,8 +83,8 @@ export function StatsView() {
         </header>
         <div className="panel">
           <p className="page__sub">
-            No hay conexion con el servidor de estadisticas. La mesa sigue funcionando, pero el historial no se esta
-            guardando. Arranca el backend con <code>npm run dev</code>.
+            No hay conexion con la base de datos. La mesa sigue funcionando, pero el historial no se esta guardando.
+            Revisa la configuracion de Firebase en <code>client/.env</code>.
           </p>
         </div>
       </div>
@@ -180,7 +180,7 @@ export function StatsView() {
             </p>
           </div>
           <div className="segmented segmented--sm">
-            {[10, 25, 50].map((b) => (
+            {[10, 20, 50].map((b) => (
               <button
                 key={b}
                 className={`segmented__opt num${bucket === b ? ' is-on' : ''}`}

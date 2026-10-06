@@ -56,21 +56,23 @@ Cuando esa tasa se estabiliza cerca del 100%, juegas de forma óptima.
 
 ```bash
 npm install
+cp client/.env.example client/.env   # y rellena las claves de Firebase
 npm run dev
 ```
 
-- Cliente: <http://localhost:5173>
-- API: <http://localhost:4000>
+Abre <http://localhost:5173>. El único requisito es **Node 20 o superior**.
 
-El único requisito es **Node 20 o superior**. La base de datos SQLite se crea sola en
-`server/data/blackjack.sqlite` la primera vez que arrancas.
+Sin las claves de Firebase la mesa funciona igual: solo deja de guardarse el historial, y
+la interfaz lo avisa. Para obtenerlas, crea un proyecto en
+[console.firebase.google.com](https://console.firebase.google.com), activa **Firestore
+Database** y copia la configuración de *Configuración del proyecto → Tus apps → Web*.
 
 Otros comandos:
 
 ```bash
-npm test         # 94 tests: motor, tabla de estrategia, reglas del casino, flujo y render
-npm run build    # compila cliente y servidor
-npm start        # sirve el build ya compilado desde el propio servidor
+npm test         # 111 tests: motor, tabla, reglas del casino, flujo y render
+npm run build    # build de producción en client/dist
+npm run preview  # sirve ese build en local
 npm run typecheck
 ```
 
@@ -206,47 +208,71 @@ client/
     store/       Estado del juego (Zustand) y ajustes persistidos
     components/  Carta, mano, HUD, controles, gráfica de líneas
     views/       Mesa, Drill, Tabla, Progreso, Ajustes
+    lib/         Conexión con Firestore y capa de historial
     styles/      Design tokens y CSS por área
-server/
-  src/
-    db/          SQLite (better-sqlite3) + esquema
-    routes/      sessions, rounds, stats
+firestore.rules  Reglas de seguridad de la base
+netlify.toml     Build y cabeceras del despliegue
 ```
 
-El motor (`engine/`) y la estrategia (`strategy/`) son **funciones puras sin dependencias
-de React**, por eso se pueden testear directamente y son el grueso de la suite.
+**No hay backend.** El cliente habla directamente con Firestore, así que el despliegue es
+un sitio estático. El motor (`engine/`) y la estrategia (`strategy/`) son funciones puras
+sin dependencias de React, por eso se pueden testear directamente y son el grueso de la
+suite.
 
-Si el backend no está levantado, la mesa sigue siendo jugable: solo se pierde la
-persistencia, y la interfaz lo avisa con un indicador *Sin servidor*.
+Si falta la configuración de Firebase o la red falla, la mesa sigue siendo jugable: solo
+se pierde la persistencia, y la interfaz lo avisa con un indicador *Sin historial*.
+
+> El servidor Express con SQLite que tenía el proyecto quedó retirado al migrar a
+> Firestore. Sigue en el historial de git por si alguna vez interesa volver a un montaje
+> local.
 
 ### Base de datos
 
-SQLite, elegido sobre Postgres porque esto es una herramienta personal y de un solo
-usuario: cero configuración, un único fichero, y consultas analíticas suficientes
-(incluidas funciones de ventana para los bloques de la curva de aprendizaje).
+Firestore. Dos decisiones gobiernan el diseño, en [`client/src/lib/api.ts`](client/src/lib/api.ts):
 
-Tres tablas, en [`server/src/db/schema.sql`](server/src/db/schema.sql):
+**Los totales van preagregados.** Firestore cobra por documento leído y no sabe agrupar,
+así que recalcular las estadísticas desde el detalle costaría una lectura por cada
+decisión jugada. En su lugar, cada escritura incrementa contadores y las consultas leen
+unos pocos documentos, independientemente del historial acumulado.
 
-- **`sessions`** — cada tanda de entrenamiento con su configuración.
-- **`rounds`** — cada mano jugada: apuesta, resultado neto, saldo, carta del crupier.
-- **`decisions`** — la unidad de medida: situación, jugada elegida, jugada óptima, acierto y tiempo de reacción.
+**Nada se borra nunca.** «Borrar historial» avanza un contador de época y todo lo anterior
+deja de consultarse. Eso permite que las reglas prohíban el borrado por completo, que sin
+autenticación es la operación más peligrosa.
 
-Para mover la base de datos a otro sitio: `BJ_DB_PATH=/ruta/al/fichero.sqlite`.
+```
+stats/global                  Contadores de siempre + época viva
+sessions/{id}                 Configuración de cada tanda
+epochs/{e}/rounds/{id}        Cada mano: apuesta, resultado, saldo
+epochs/{e}/decisions/{id}     La unidad de medida del entrenamiento
+epochs/{e}/progress/{bloque}  Aciertos por bloque de 10 decisiones
+epochs/{e}/situations/{clave} Aciertos por casilla de la tabla
+epochs/{e}/mistakes/{clave}   Errores más repetidos
+```
 
-### Endpoints
+### Seguridad
 
-| Método | Ruta | Para qué |
-|---|---|---|
-| `POST` | `/api/sessions` | Abre una sesión de entrenamiento |
-| `GET` | `/api/sessions` | Últimas 50 sesiones con su resumen |
-| `POST` | `/api/rounds` | Guarda una ronda y sus decisiones (transaccional) |
-| `POST` | `/api/rounds/decisions` | Guarda decisiones sueltas del modo drill |
-| `GET` | `/api/stats/summary` | Cifras globales |
-| `GET` | `/api/stats/progress?bucket=25` | Curva de aprendizaje |
-| `GET` | `/api/stats/bankroll` | Saldo mano a mano |
-| `GET` | `/api/stats/situations` | Precisión por casilla |
-| `GET` | `/api/stats/mistakes?limit=10` | Errores más repetidos |
-| `DELETE` | `/api/stats` | Borra todo el historial |
+La app no usa autenticación, así que [`firestore.rules`](firestore.rules) es lo único que
+protege los datos: las claves de Firebase viajan en el bundle y cualquiera puede leerlas.
+Las reglas **prohíben todo borrado** y validan tipos, rangos y tamaños de cuanto se
+escribe, de modo que el peor caso de un abuso sea basura añadida y nunca la pérdida del
+progreso.
+
+Si algún día se añade login, basta sustituir los `true` de las reglas por
+`request.auth.uid == <propietario>`.
+
+---
+
+## Despliegue
+
+El sitio es estático: Netlify publica `client/dist` y el cliente habla con Firestore.
+
+1. **Firebase** — crea el proyecto, activa Firestore en modo producción y pega el
+   contenido de `firestore.rules` en *Firestore → Reglas*.
+2. **Netlify** — conecta el repositorio. [`netlify.toml`](netlify.toml) ya trae el comando
+   de build, la carpeta a publicar y las cabeceras.
+3. **Variables de entorno** — en *Site settings → Environment variables*, las seis
+   `VITE_FIREBASE_*` de [`client/.env.example`](client/.env.example). Son necesarias en el
+   build, no en ejecución: si las cambias, hay que volver a desplegar.
 
 ---
 

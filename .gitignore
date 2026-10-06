@@ -17,10 +17,12 @@ build/
 *.db-shm
 server/data/
 
-# Entorno
+# Entorno (las claves de Firebase van aqui, nunca al repositorio)
 .env
 .env.local
 .env.*.local
+client/.env
+!client/.env.example
 
 # Logs
 logs/

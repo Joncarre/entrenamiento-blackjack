@@ -62,7 +62,7 @@ export default function App() {
 
         {offline && (
           <span className="offline" title="El historial no se esta guardando">
-            Sin servidor
+            Sin historial
           </span>
         )}
       </header>

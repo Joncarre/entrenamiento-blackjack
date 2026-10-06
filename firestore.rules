@@ -1,0 +1,126 @@
+rules_version = '2';
+
+// ------------------------------------------------------------------
+// Reglas del entrenador de Blackjack.
+//
+// La aplicacion no usa autenticacion, asi que estas reglas son lo unico
+// que protege los datos: las claves de Firebase viajan en el bundle y
+// cualquiera puede leerlas.
+//
+// Dos lineas de defensa:
+//
+//   1. NADIE PUEDE BORRAR. Ni documentos ni colecciones. "Borrar
+//      historial" en la aplicacion no borra: avanza un contador de epoca
+//      y lo anterior deja de leerse. Asi el peor caso de un abuso es
+//      basura anadida, nunca la perdida del progreso.
+//
+//   2. Todo lo que se escribe se valida: tipos, rangos y tamanos. Un
+//      script que intente llenar la base con documentos arbitrarios se
+//      topa con la forma esperada.
+//
+// Si algun dia se anade login, basta sustituir `true` en las lecturas y
+// escrituras por `request.auth.uid == <propietario>`.
+// ------------------------------------------------------------------
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --- utilidades ---------------------------------------------------
+
+    function isNum(v) {
+      return v is number;
+    }
+
+    // Un incremento llega resuelto al validador, asi que solo se exige que
+    // el resultado siga siendo un numero dentro de un rango sensato.
+    function sane(v, lo, hi) {
+      return v is number && v >= lo && v <= hi;
+    }
+
+    function shortText(v, max) {
+      return v is string && v.size() <= max;
+    }
+
+    // --- contadores globales ------------------------------------------
+
+    match /stats/global {
+      allow read: if true;
+      allow create, update: if
+        sane(request.resource.data.epoch, 1, 100000) &&
+        request.resource.data.keys().hasOnly([
+          'epoch', 'sessions', 'rounds', 'hands', 'net', 'wagered',
+          'decisions', 'correct', 'msTotal', 'msCount', 'outcomes', 'recent'
+        ]) &&
+        (!('recent' in request.resource.data) || shortText(request.resource.data.recent, 100));
+      allow delete: if false;
+    }
+
+    // --- configuracion de cada tanda ----------------------------------
+
+    match /sessions/{id} {
+      allow read: if true;
+      allow create: if
+        request.resource.data.keys().size() <= 16 &&
+        sane(request.resource.data.get('decks', 6), 1, 8) &&
+        sane(request.resource.data.get('bankroll', 0), 0, 1000000) &&
+        sane(request.resource.data.get('baseBet', 1), 0, 1000000);
+      allow update, delete: if false;
+    }
+
+    // --- detalle y agregados de la epoca viva -------------------------
+
+    match /epochs/{epoch}/rounds/{id} {
+      allow read: if true;
+      allow create: if
+        sane(request.resource.data.bet, 0, 1000000) &&
+        sane(request.resource.data.net, -1000000, 1000000) &&
+        sane(request.resource.data.bankrollAfter, -1000000, 1000000) &&
+        sane(request.resource.data.handsPlayed, 1, 8) &&
+        request.resource.data.outcomes.size() <= 8;
+      allow update, delete: if false;
+    }
+
+    match /epochs/{epoch}/decisions/{id} {
+      allow read: if true;
+      allow create: if
+        shortText(request.resource.data.situationKey, 16) &&
+        shortText(request.resource.data.chosen, 24) &&
+        shortText(request.resource.data.optimal, 24) &&
+        request.resource.data.isCorrect is bool &&
+        sane(request.resource.data.index, 0, 100000000);
+      allow update, delete: if false;
+    }
+
+    match /epochs/{epoch}/progress/{bucket} {
+      allow read: if true;
+      allow create, update: if
+        sane(request.resource.data.total, 0, 100000000) &&
+        sane(request.resource.data.correct, 0, 100000000) &&
+        request.resource.data.correct <= request.resource.data.total;
+      allow delete: if false;
+    }
+
+    match /epochs/{epoch}/situations/{key} {
+      allow read: if true;
+      allow create, update: if
+        shortText(key, 16) &&
+        sane(request.resource.data.total, 0, 100000000) &&
+        sane(request.resource.data.correct, 0, 100000000) &&
+        request.resource.data.correct <= request.resource.data.total;
+      allow delete: if false;
+    }
+
+    match /epochs/{epoch}/mistakes/{key} {
+      allow read: if true;
+      allow create, update: if
+        shortText(key, 48) &&
+        sane(request.resource.data.count, 0, 100000000);
+      allow delete: if false;
+    }
+
+    // Cualquier otra ruta queda cerrada.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

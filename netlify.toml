@@ -1,0 +1,36 @@
+# Despliegue del entrenador de Blackjack.
+#
+# No hay backend: el cliente habla directamente con Firestore, asi que
+# Netlify solo publica el build estatico de Vite.
+
+[build]
+  command = "npm run build --workspace client"
+  publish = "client/dist"
+
+[build.environment]
+  NODE_VERSION = "22"
+
+# La aplicacion resuelve la navegacion en el cliente: cualquier ruta
+# devuelve el index y React decide que pintar.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+
+# Los assets llevan hash en el nombre, asi que pueden cachearse para siempre.
+[[headers]]
+  for = "/assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/index.html"
+  [headers.values]
+    Cache-Control = "no-cache"
+
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    X-Frame-Options = "SAMEORIGIN"
