@@ -158,3 +158,25 @@
     display: none;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Movil: zonas seguras de la mesa
+ *
+ * La mesa tiene que caber en pantalla, asi que solo se le anade el hueco
+ * que reclame el dispositivo, no el margen generoso de las vistas con
+ * scroll.
+ * ------------------------------------------------------------------ */
+.game {
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  padding-bottom: max(18px, calc(env(safe-area-inset-bottom) + 10px));
+}
+
+@media (min-width: 861px) {
+  .game {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+    padding-bottom: max(24px, calc(env(safe-area-inset-bottom) + 12px));
+  }
+}
+

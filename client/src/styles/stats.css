@@ -863,3 +863,96 @@
     padding: 14px 12px;
   }
 }
+
+/* ------------------------------------------------------------------ *
+ * Movil
+ *
+ * La tabla necesita unos 490 px y un movil estrecho deja poco mas de
+ * 320 px utiles, asi que el desplazamiento lateral es inevitable. Lo que
+ * se arregla es que sea usable: la columna de la mano se queda fija al
+ * desplazar, y los bordes se difuminan para que se vea que hay mas tabla
+ * a los lados.
+ * ------------------------------------------------------------------ */
+
+/* La cabecera de fila acompana al desplazamiento: sin ella se pierde de
+   vista que mano se esta mirando. */
+.sheet .chart__rowhead,
+.sheet .chart__corner {
+  position: sticky;
+  left: 0;
+  z-index: 2;
+  background: #ffffff;
+}
+
+/* Sombra de corte para que la columna fija se despegue de la tabla. */
+.sheet .chart__rowhead::after,
+.sheet .chart__corner::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: -6px;
+  width: 6px;
+  height: 100%;
+  background: linear-gradient(to right, rgba(0, 0, 0, 0.09), transparent);
+  pointer-events: none;
+}
+
+/* Degradados que revelan si queda tabla fuera de la pantalla. */
+.sheet .chart-scroll {
+  background:
+    linear-gradient(to right, #ffffff 40%, rgba(255, 255, 255, 0)) left center / 24px 100% no-repeat
+      local,
+    linear-gradient(to left, #ffffff 40%, rgba(255, 255, 255, 0)) right center / 24px 100% no-repeat
+      local,
+    radial-gradient(farthest-side at 0 50%, rgba(0, 0, 0, 0.14), transparent) left center / 10px 100%
+      no-repeat scroll,
+    radial-gradient(farthest-side at 100% 50%, rgba(0, 0, 0, 0.14), transparent) right center / 10px
+      100% no-repeat scroll;
+  -webkit-overflow-scrolling: touch;
+  scroll-snap-type: x proximity;
+}
+
+@media (max-width: 560px) {
+  /* Celdas algo mas justas: recorta unos 60 px de desplazamiento sin
+     perder legibilidad de los codigos de tres caracteres. */
+  .chart__cell {
+    min-width: 36px;
+    height: 28px;
+    font-size: 10.5px;
+  }
+  .chart__rowhead {
+    padding-right: 7px;
+    font-size: 11px;
+  }
+  .chart th {
+    font-size: 10px;
+    padding: 4px 3px;
+  }
+  .legend {
+    gap: 7px 12px;
+    font-size: 11.5px;
+  }
+}
+
+@media (max-width: 560px) {
+  /* Los botones del drill reparten el ancho en vez de desbordar.
+     Va aqui y no en controls.css porque esta hoja se carga despues. */
+  .drill__actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    width: 100%;
+  }
+
+  .drill__board {
+    gap: 8px;
+  }
+
+  .drill__focus {
+    gap: 10px;
+  }
+
+  .drill__score span {
+    font-size: 18px;
+  }
+}

@@ -83,8 +83,10 @@
   white-space: nowrap;
 }
 
-.tab:hover {
-  color: var(--text);
+@media (hover: hover) {
+  .tab:hover {
+    color: var(--text);
+  }
 }
 
 .tab.is-on {
@@ -239,5 +241,53 @@ code {
   }
   .page__title {
     font-size: 25px;
+  }
+}
+
+/* ------------------------------------------------------------------ *
+ * Movil: zonas seguras y navegacion estrecha
+ * ------------------------------------------------------------------ */
+
+/* El muesca y los bordes redondeados se comen los laterales en horizontal. */
+.topbar,
+.page {
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+
+/* Las vistas con scroll dejan sitio bajo la barra del navegador. */
+.page {
+  padding-bottom: max(80px, calc(env(safe-area-inset-bottom) + 56px));
+}
+
+@media (min-width: 861px) {
+  .topbar,
+  .page {
+    padding-left: max(20px, env(safe-area-inset-left));
+    padding-right: max(20px, env(safe-area-inset-right));
+  }
+}
+
+/* Cinco pestanas mas la marca no caben siempre: se dejan desplazar en vez
+   de desbordar o apretarse hasta ser ilegibles. */
+@media (max-width: 480px) {
+  .tabs {
+    overflow-x: auto;
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch;
+  }
+  .tabs::-webkit-scrollbar {
+    display: none;
+  }
+  .tab {
+    padding: 7px 10px;
+    font-size: 12px;
+    /* Zona tactil comoda aunque el texto sea pequeno. */
+    min-height: 34px;
+  }
+  .brand__mark {
+    width: 26px;
+    height: 26px;
+    font-size: 13px;
   }
 }

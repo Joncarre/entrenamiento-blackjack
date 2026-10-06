@@ -44,9 +44,11 @@
     opacity 0.18s var(--ease-out);
 }
 
-.abtn:hover:not(:disabled) {
-  background: var(--surface-hi);
-  transform: translateY(-1px);
+@media (hover: hover) {
+  .abtn:hover:not(:disabled) {
+    background: var(--surface-hi);
+    transform: translateY(-1px);
+  }
 }
 
 .abtn:disabled {
@@ -136,8 +138,10 @@
     opacity 0.18s var(--ease-out);
 }
 
-.btn:hover:not(:disabled) {
-  background: var(--surface-hi);
+@media (hover: hover) {
+  .btn:hover:not(:disabled) {
+    background: var(--surface-hi);
+  }
 }
 
 .btn:disabled {
@@ -152,8 +156,10 @@
   box-shadow: 0 6px 22px -10px rgba(227, 196, 141, 0.75);
 }
 
-.btn--gold:hover:not(:disabled) {
-  background: linear-gradient(145deg, #eed3a2, var(--gold));
+@media (hover: hover) {
+  .btn--gold:hover:not(:disabled) {
+    background: linear-gradient(145deg, #eed3a2, var(--gold));
+  }
 }
 
 .btn--gold .btn__key {
@@ -168,9 +174,11 @@
   color: var(--text-dim);
 }
 
-.btn--ghost:hover:not(:disabled) {
-  background: var(--surface-2);
-  color: var(--text);
+@media (hover: hover) {
+  .btn--ghost:hover:not(:disabled) {
+    background: var(--surface-2);
+    color: var(--text);
+  }
 }
 
 .btn--lg {
@@ -485,9 +493,11 @@
     color 0.18s var(--ease-out);
 }
 
-.segmented__opt:hover:not(:disabled):not(.is-on) {
-  color: var(--text);
-  background: var(--surface-3);
+@media (hover: hover) {
+  .segmented__opt:hover:not(:disabled):not(.is-on) {
+    color: var(--text);
+    background: var(--surface-3);
+  }
 }
 
 .segmented__opt.is-on {
@@ -633,4 +643,43 @@ input:focus-visible ~ .toggle__track {
     flex-direction: column;
     gap: 10px;
   }
+}
+
+/* ------------------------------------------------------------------ *
+ * Movil: zonas tactiles
+ * ------------------------------------------------------------------ */
+@media (max-width: 560px) {
+  /* 44 px es el minimo comodo para el pulgar; el relleno solo no lo
+     garantiza cuando el texto es corto. */
+  .abtn,
+  .btn {
+    min-height: 44px;
+  }
+
+  .btn--sm {
+    min-height: 38px;
+  }
+
+  /* Los botones de jugada reparten el ancho en vez de desbordar. */
+  .actionbar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 7px;
+    width: 100%;
+  }
+
+  .abtn {
+    justify-content: center;
+    padding: 10px 8px;
+  }
+
+  /* El interruptor necesita area propia: la fila entera es tactil. */
+  .switch {
+    padding: 15px 0;
+  }
+}
+
+/* El corrector se levanta sobre la barra inferior del navegador. */
+.feedback-layer {
+  bottom: max(22px, calc(env(safe-area-inset-bottom) + 14px));
 }

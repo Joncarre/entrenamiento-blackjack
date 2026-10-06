@@ -79,6 +79,14 @@ body,
   height: 100%;
 }
 
+/* En movil la barra del navegador aparece y desaparece: con 100dvh el alto
+   sigue al viewport visible en vez de dar saltos. */
+@supports (height: 100dvh) {
+  #root {
+    min-height: 100dvh;
+  }
+}
+
 body {
   margin: 0;
   background: var(--bg);
@@ -129,8 +137,10 @@ select {
   border-radius: var(--radius-pill);
   border: 3px solid var(--bg);
 }
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-faint);
+@media (hover: hover) {
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--text-faint);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
