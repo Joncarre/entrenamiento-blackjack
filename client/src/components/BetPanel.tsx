@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import { useEffect } from 'react';
+import { useCallback, useEffect } from 'react';
 import { useGame } from '../store/useGame';
 
 /** Denominaciones clasicas de ficha. El color sigue la convencion de casino. */
@@ -16,6 +16,12 @@ export function BetPanel() {
   const nextRound = useGame((s) => s.nextRound);
   const rebuy = useGame((s) => s.rebuyBankroll);
 
+  /** Cierra la mano y reparte de inmediato: en el movil, un solo toque. */
+  const dealNext = useCallback(async () => {
+    nextRound();
+    await deal();
+  }, [nextRound, deal]);
+
   const betting = phase === 'betting';
   const over = phase === 'roundOver';
   const broke = bankroll < 1;
@@ -30,12 +36,12 @@ export function BetPanel() {
         void deal();
       } else if (over) {
         e.preventDefault();
-        nextRound();
+        void dealNext();
       }
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [betting, over, broke, deal, nextRound]);
+  }, [betting, over, broke, deal, dealNext]);
 
   if (!betting && !over) return null;
 
@@ -108,10 +114,21 @@ export function BetPanel() {
             </>
           )
         ) : (
-          <motion.button className="btn btn--gold btn--lg" onClick={nextRound} whileTap={{ scale: 0.97 }}>
-            Siguiente mano
-            <kbd className="btn__key">Espacio</kbd>
-          </motion.button>
+          <>
+            <motion.button
+              className="btn btn--gold btn--lg"
+              onClick={() => void dealNext()}
+              whileTap={{ scale: 0.97 }}
+            >
+              Siguiente mano
+              <kbd className="btn__key">Espacio</kbd>
+            </motion.button>
+            {/* Con el reparto encadenado, esta es la unica via para tocar la
+                apuesta entre manos. */}
+            <button className="btn btn--ghost btn--sm" onClick={nextRound}>
+              Cambiar apuesta
+            </button>
+          </>
         )}
       </motion.div>
     </AnimatePresence>

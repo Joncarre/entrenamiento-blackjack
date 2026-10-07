@@ -1,0 +1,349 @@
+/* ------------------------------------------------------------------ *
+ * Escala movil
+ *
+ * En una pantalla de telefono la interfaz pensada para escritorio se ve
+ * inflada: los paneles comen alto y las cifras gritan. Aqui se reduce la
+ * escala tipografica y el aire de todo lo que rodea al juego.
+ *
+ * LA MESA NO SE TOCA. Las cartas, el fieltro y los totales se ven bien al
+ * tamano que tienen, y achicarlos dificultaria leer la mano, que es
+ * justo lo que hay que practicar.
+ *
+ * Esta hoja se carga la ultima a proposito: cada regla tiene que ganar a
+ * la del fichero donde se define su clase.
+ * ------------------------------------------------------------------ */
+
+@media (max-width: 560px) {
+  body {
+    font-size: 13.5px;
+  }
+
+  /* --- Cabecera ---------------------------------------------------- */
+
+  :root {
+    --header-h: 52px;
+  }
+
+  .brand__mark {
+    width: 24px;
+    height: 24px;
+    border-radius: 7px;
+    font-size: 12px;
+  }
+
+  .tab {
+    padding: 6px 9px;
+    font-size: 11.5px;
+    min-height: 32px;
+  }
+
+  .offline {
+    padding: 3px 8px;
+    font-size: 10px;
+  }
+
+  /* --- Vistas y paneles -------------------------------------------- */
+
+  .page {
+    padding-top: 14px;
+  }
+
+  .page__head {
+    margin-bottom: 14px;
+  }
+
+  .page__title {
+    font-size: 20px;
+  }
+
+  .page__sub {
+    font-size: 12.5px;
+  }
+
+  .panel {
+    padding: 13px;
+    margin-bottom: 12px;
+    border-radius: var(--radius);
+  }
+
+  .panel__title {
+    font-size: 13.5px;
+  }
+
+  .panel__note,
+  .panel__warn,
+  .empty {
+    font-size: 12px;
+  }
+
+  /* --- Barra de estado de la mesa ----------------------------------- */
+
+  .hud {
+    padding: 10px 12px;
+    gap: 10px;
+    border-radius: var(--radius);
+  }
+
+  .hud__accuracy-value {
+    font-size: 24px;
+  }
+
+  .hud__label {
+    font-size: 9.5px;
+  }
+
+  .hud__accuracy-sub,
+  .shoe__text {
+    font-size: 10px;
+  }
+
+  .stat {
+    padding: 6px 10px;
+    min-width: 68px;
+  }
+
+  .stat__label {
+    font-size: 9px;
+  }
+
+  .stat__value {
+    font-size: 13px;
+  }
+
+  .stat__hint {
+    font-size: 9.5px;
+  }
+
+  /* --- Botones de jugada -------------------------------------------- */
+
+  /* Mas compactos de ancho y de texto, pero sin bajar de 42 px de alto:
+     por debajo de eso el pulgar empieza a fallar el objetivo. */
+  .abtn {
+    padding: 8px 6px;
+    font-size: 12px;
+    min-height: 42px;
+    gap: 6px;
+  }
+
+  .abtn::before {
+    width: 9px;
+    height: 9px;
+  }
+
+  .btn {
+    padding: 9px 14px;
+    font-size: 13px;
+    min-height: 42px;
+  }
+
+  .btn--lg {
+    padding: 11px 24px;
+    font-size: 14px;
+  }
+
+  .btn--sm {
+    padding: 5px 11px;
+    font-size: 11.5px;
+    min-height: 32px;
+  }
+
+  .btn__key {
+    display: none;
+  }
+
+  /* --- Apuesta ------------------------------------------------------- */
+
+  .chip {
+    width: 42px;
+    height: 42px;
+    font-size: 12px;
+    border-width: 2px;
+  }
+
+  .chips {
+    gap: 8px;
+  }
+
+  .betamount__label {
+    font-size: 10px;
+  }
+
+  .betamount__value {
+    font-size: 18px;
+  }
+
+  .betpanel {
+    gap: 10px;
+  }
+
+  /* --- Corrector de jugada ------------------------------------------- */
+
+  .feedback {
+    padding: 11px 13px;
+    gap: 11px;
+  }
+
+  .feedback__mark {
+    width: 22px;
+    height: 22px;
+    font-size: 12px;
+  }
+
+  .feedback__head {
+    font-size: 12.5px;
+  }
+
+  .feedback__diff {
+    font-size: 12px;
+  }
+
+  .feedback__reason,
+  .feedback__strict,
+  .feedback__hand {
+    font-size: 11.5px;
+  }
+
+  .controls {
+    min-height: 92px;
+    gap: 10px;
+  }
+
+  .controls__status,
+  .hintline {
+    font-size: 12px;
+  }
+
+  /* --- Ajustes -------------------------------------------------------- */
+
+  .field {
+    margin-bottom: 14px;
+  }
+
+  .field__label {
+    font-size: 12.5px;
+  }
+
+  .field__hint {
+    font-size: 11.5px;
+  }
+
+  .segmented__opt {
+    padding: 6px 11px;
+    font-size: 12px;
+    min-height: 32px;
+  }
+
+  .input {
+    width: 96px;
+    padding: 7px 10px;
+    font-size: 13px;
+  }
+
+  .fixedvalue {
+    padding: 7px 11px;
+    font-size: 12.5px;
+  }
+
+  /* --- Progreso -------------------------------------------------------- */
+
+  .tiles {
+    gap: 8px;
+  }
+
+  .tile {
+    padding: 11px 12px;
+    border-radius: var(--radius-sm);
+  }
+
+  .tile__label {
+    font-size: 9.5px;
+  }
+
+  .tile__value {
+    font-size: 18px;
+  }
+
+  .tile--hero .tile__value {
+    font-size: 27px;
+  }
+
+  .tile__hint {
+    font-size: 10.5px;
+  }
+
+  .weak__name,
+  .weak__score {
+    font-size: 12.5px;
+  }
+
+  .weak__fix,
+  .mistake {
+    font-size: 11.5px;
+  }
+
+  .datatable {
+    font-size: 11.5px;
+  }
+
+  /* --- Hoja de la tabla ------------------------------------------------- */
+
+  .sheet {
+    padding: 12px 10px;
+    border-radius: var(--radius);
+  }
+
+  .legend {
+    font-size: 11px;
+    gap: 6px 10px;
+    margin-bottom: 14px;
+  }
+
+  .legend__swatch {
+    min-width: 23px;
+    height: 19px;
+    font-size: 10px;
+  }
+
+  .chart-section {
+    margin-bottom: 18px;
+  }
+
+  .chart-section__title {
+    font-size: 13.5px;
+  }
+
+  .chart-section__note,
+  .chart-hint,
+  .chart-rules {
+    font-size: 11px;
+  }
+
+  .rulelist {
+    font-size: 12px;
+    padding-left: 17px;
+  }
+
+  /* --- Drill -------------------------------------------------------------- */
+
+  .drill__caption {
+    font-size: 9.5px;
+  }
+
+  .drill__score span {
+    font-size: 17px;
+  }
+
+  .drill__score small {
+    font-size: 10px;
+  }
+
+  .drill__ok,
+  .drill__bad {
+    font-size: 12.5px;
+  }
+
+  .drill__feedback {
+    min-height: 40px;
+    margin-top: 10px;
+  }
+}

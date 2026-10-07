@@ -355,3 +355,71 @@ describe('disposicion del drill', () => {
     expect(sides[1].textContent).toContain('Tu mano');
   });
 });
+
+describe('encadenar manos', () => {
+  async function playOneHand() {
+    await act(async () => {
+      useGame.setState({
+        settings: { ...DEFAULT_SETTINGS, rules: { ...CASINO_RULES, penetration: 1 }, speed: 'instant' },
+        shoeState: {
+          shoe: (['T', 'T', '9', '8', '5', '6', '7', '4', '3', '2'] as Rank[]).map((rank, i) => ({
+            id: `n${i}`,
+            rank,
+            suit: 'S' as const,
+          })),
+          index: 0,
+          shuffles: 1,
+        },
+        bankroll: 100,
+        pendingBet: 10,
+        phase: 'betting',
+        hands: [],
+        dealer: [],
+        epoch: 0,
+      });
+      await useGame.getState().deal();
+      await useGame.getState().act('stand');
+    });
+  }
+
+  it('reparte al pulsar Siguiente mano, sin pasar por la apuesta', async () => {
+    await mount(<GameView />);
+    await playOneHand();
+    expect(useGame.getState().phase).toBe('roundOver');
+
+    const boton = screen.getByText(/Siguiente mano/).closest('button');
+    expect(boton).toBeTruthy();
+
+    await act(async () => {
+      boton!.click();
+      // El reparto encadena un temporizador por carta, aun en instantaneo.
+      await new Promise((r) => setTimeout(r, 150));
+    });
+
+    // Mano nueva ya repartida: ni fase de apuesta ni un segundo toque.
+    // Se mira el estado y no el DOM porque las cartas de la mano anterior
+    // siguen montadas mientras dura su animacion de salida, que en jsdom no
+    // llega a completarse.
+    const s = useGame.getState();
+    expect(s.phase).toBe('playerTurn');
+    expect(s.hands).toHaveLength(1);
+    expect(s.hands[0].cards).toHaveLength(2);
+    expect(s.dealer).toHaveLength(2);
+    expect(s.hands[0].outcome).toBeUndefined();
+  });
+
+  it('deja volver a la apuesta cuando se quiere cambiar', async () => {
+    await mount(<GameView />);
+    await playOneHand();
+
+    const boton = screen.getByText('Cambiar apuesta').closest('button');
+    await act(async () => {
+      boton!.click();
+      await new Promise((r) => setTimeout(r, 20));
+    });
+
+    expect(useGame.getState().phase).toBe('betting');
+    // Y sin repartir: la mano siguiente espera a que se ajuste la apuesta.
+    expect(useGame.getState().hands).toHaveLength(0);
+  });
+});
