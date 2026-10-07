@@ -58,7 +58,13 @@ export function ActionBar() {
             onClick={() => void act(action)}
             whileTap={enabled ? { scale: 0.96 } : undefined}
             aria-keyshortcuts={key}
+            // En pantalla estrecha solo se ve la inicial, pero el nombre de la
+            // jugada tiene que seguir llegando a un lector de pantalla.
+            aria-label={actionLabel(action)}
           >
+            <span className="abtn__initial" aria-hidden>
+              {key}
+            </span>
             <span className="abtn__label">{actionLabel(action)}</span>
             <kbd className="abtn__key">{key}</kbd>
           </motion.button>

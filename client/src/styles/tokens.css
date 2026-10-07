@@ -43,6 +43,13 @@
   --act-split-hit: #74b4ee;
   --act-surrender: #c97ad6;
 
+  /* Tinta sobre cada color, ya validada contra su fondo (ver stats.css). */
+  --act-hit-ink: #ffeef1;
+  --act-stand-ink: #04170d;
+  --act-double-ink: #1a1505;
+  --act-split-ink: #eef6ff;
+  --act-surrender-ink: #1a0c1d;
+
   /* Fieltro de la mesa. */
   --felt-1: #10463a;
   --felt-2: #0a2c25;

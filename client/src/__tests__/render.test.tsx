@@ -423,3 +423,50 @@ describe('encadenar manos', () => {
     expect(useGame.getState().hands).toHaveLength(0);
   });
 });
+
+describe('botones de jugada reducidos a su inicial', () => {
+  it('cada boton lleva inicial, nombre completo y etiqueta accesible', async () => {
+    await mount(<DrillView />);
+
+    const esperado = [
+      ['P', 'Pedir'],
+      ['Q', 'Quedarse'],
+      ['D', 'Doblar'],
+      ['S', 'Separar'],
+      ['R', 'Retirarse'],
+    ];
+
+    const botones = [...document.querySelectorAll('.abtn')];
+    expect(botones).toHaveLength(5);
+
+    botones.forEach((boton, i) => {
+      const [inicial, nombre] = esperado[i];
+      expect(boton.querySelector('.abtn__initial')?.textContent, `inicial ${inicial}`).toBe(inicial);
+      expect(boton.querySelector('.abtn__label')?.textContent, `nombre ${nombre}`).toBe(nombre);
+      // En movil solo se ve la letra, asi que el nombre tiene que llegar
+      // igualmente a quien use lector de pantalla.
+      expect(boton.getAttribute('aria-label'), `aria-label ${nombre}`).toBe(nombre);
+      // La inicial es decorativa: ya la cubre el aria-label.
+      expect(boton.querySelector('.abtn__initial')?.getAttribute('aria-hidden')).toBe('true');
+    });
+  });
+
+  it('la inicial coincide con el simbolo de esa jugada en la tabla', async () => {
+    await mount(<DrillView />);
+    const iniciales = [...document.querySelectorAll('.abtn__initial')].map((el) => el.textContent);
+    cleanup();
+
+    useGame.setState({ settings: { ...DEFAULT_SETTINGS, rules: CASINO_RULES } });
+    await mount(<ChartView />);
+    const casillas = new Set(
+      [...document.querySelectorAll('.chart__cell')].map((el) => el.textContent?.charAt(0)),
+    );
+
+    // Pedir, quedarse, doblar y separar aparecen en la tabla del casino;
+    // retirarse no, porque esa mesa no lo ofrece.
+    for (const inicial of ['P', 'Q', 'D', 'S']) {
+      expect(iniciales, `boton ${inicial}`).toContain(inicial);
+      expect(casillas.has(inicial), `casilla ${inicial}`).toBe(true);
+    }
+  });
+});

@@ -159,24 +159,62 @@
 
   /* --- Botones de jugada -------------------------------------------- */
 
-  /* 38 px es el suelo que me permito: por debajo, el pulgar empieza a
-     fallar el objetivo y son los botones que mas se usan. */
+  /* ------------------------------------------------------------- *
+   * El boton de jugada se reduce a su inicial y se tine del color de
+   * la jugada: pasa a ser la misma ficha que su casilla en la tabla,
+   * de modo que lo que se pulsa se parece a lo que hay que memorizar.
+   *
+   * Tenir el boton y no solo la letra no es capricho: de los cinco
+   * colores, tres no llegan a 4.5:1 como texto sobre el fondo oscuro.
+   * Como relleno con su tinta propia, los cinco pasan AA.
+   * ------------------------------------------------------------- */
   .abtn {
     padding: 6px 4px;
-    font-size: 11px;
-    min-height: 38px;
-    gap: 5px;
-    border-width: 2px;
+    min-height: 40px;
+    gap: 0;
+    background: var(--act);
+    border-color: transparent;
+    color: var(--act-ink);
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.02em;
   }
 
+  .abtn__initial {
+    display: block;
+  }
+
+  .abtn__label,
+  .abtn__key,
   .abtn::before {
-    width: 7px;
-    height: 7px;
+    display: none;
   }
 
+  /* Con una sola letra caben los cinco en una fila. */
   .actionbar,
   .drill__actions {
-    gap: 5px;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+  }
+
+  /* Deshabilitado: se apaga sin perder de vista cual es cual. */
+  .abtn:disabled {
+    opacity: 0.22;
+  }
+
+  /* La jugada sugerida y el acierto o fallo del drill siguen marcandose,
+     ahora con un anillo porque el relleno ya lo ocupa el color. */
+  .abtn.is-suggested {
+    box-shadow: 0 0 0 2px var(--gold);
+    background: var(--act);
+  }
+
+  .abtn.is-right {
+    box-shadow: 0 0 0 2px var(--emerald);
+  }
+
+  .abtn.is-wrong {
+    box-shadow: 0 0 0 2px var(--ruby);
   }
 
   .btn {

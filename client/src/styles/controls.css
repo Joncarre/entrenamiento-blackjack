@@ -70,22 +70,27 @@
 
 .abtn--hit {
   --act: var(--act-hit);
+  --act-ink: var(--act-hit-ink);
   border-color: color-mix(in srgb, var(--act-hit) 80%, transparent);
 }
 .abtn--stand {
   --act: var(--act-stand);
+  --act-ink: var(--act-stand-ink);
   border-color: color-mix(in srgb, var(--act-stand) 80%, transparent);
 }
 .abtn--double {
   --act: var(--act-double);
+  --act-ink: var(--act-double-ink);
   border-color: color-mix(in srgb, var(--act-double) 70%, transparent);
 }
 .abtn--split {
   --act: var(--act-split);
+  --act-ink: var(--act-split-ink);
   border-color: color-mix(in srgb, var(--act-split) 85%, transparent);
 }
 .abtn--surrender {
   --act: var(--act-surrender);
+  --act-ink: var(--act-surrender-ink);
   border-color: color-mix(in srgb, var(--act-surrender) 70%, transparent);
 }
 
@@ -106,6 +111,11 @@
   border-color: var(--ruby);
   background: rgba(242, 85, 95, 0.14);
   opacity: 1;
+}
+
+/* Solo se usa en movil, donde el boton se reduce a su inicial. */
+.abtn__initial {
+  display: none;
 }
 
 .abtn__key,

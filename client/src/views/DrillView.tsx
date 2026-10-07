@@ -17,6 +17,15 @@ const FOCUS_LABEL: Record<Focus, string> = {
   weak: 'Mis fallos',
 };
 
+/** Inicial de cada jugada: es el atajo de teclado y su simbolo en la tabla. */
+const INITIAL: Record<HandAction, string> = {
+  hit: 'P',
+  stand: 'Q',
+  double: 'D',
+  split: 'S',
+  surrender: 'R',
+};
+
 const SUITS = ['S', 'H', 'D', 'C'] as const;
 let uid = 0;
 const card = (rank: Rank): Card => ({
@@ -272,11 +281,13 @@ export function DrillView() {
               }`}
               disabled={!enabled}
               onClick={() => answer(action)}
+              aria-label={actionLabel(action)}
             >
+              <span className="abtn__initial" aria-hidden>
+                {INITIAL[action]}
+              </span>
               <span className="abtn__label">{actionLabel(action)}</span>
-              <kbd className="abtn__key">
-                {{ hit: 'P', stand: 'Q', double: 'D', split: 'S', surrender: 'R' }[action]}
-              </kbd>
+              <kbd className="abtn__key">{INITIAL[action]}</kbd>
             </button>
           );
         })}
